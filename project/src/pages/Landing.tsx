@@ -2,7 +2,7 @@ import React from 'react';
 import { Heart, ArrowRight, Sparkles, Shield, Users, MessageCircle } from 'lucide-react';
 import Button from '../components/ui/Button';
 
-const Landing: React.FC = () => {
+const Landing = () => {
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden">
       {/* Navigation */}
