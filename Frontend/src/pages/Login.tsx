@@ -6,11 +6,27 @@ import Card from '../components/ui/Card';
 const Login: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle login logic here
-    console.log('Login:', { email, password });
+    setIsLoading(true);
+    try {
+      // Handle login logic here
+      console.log('Login:', { email, password });
+    } catch (error) {
+      console.error('Login error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = () => {
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/google`;
+  };
+
+  const handleGithubLogin = () => {
+    window.location.href = `${import.meta.env.VITE_API_URL}/auth/github`;
   };
 
   return (
@@ -102,8 +118,9 @@ const Login: React.FC = () => {
               fullWidth
               size="lg"
               rightIcon={<ArrowRight className="h-5 w-5" />}
+              disabled={isLoading}
             >
-              Sign in
+              {isLoading ? 'Signing in...' : 'Sign in'}
             </Button>
           </form>
 
@@ -118,7 +135,12 @@ const Login: React.FC = () => {
             </div>
 
             <div className="mt-6 grid grid-cols-2 gap-3">
-              <Button variant="outline" fullWidth>
+              <Button 
+                variant="outline" 
+                fullWidth 
+                onClick={handleGoogleLogin}
+                disabled={isLoading}
+              >
                 <img
                   className="h-5 w-5"
                   src="https://www.svgrepo.com/show/475656/google-color.svg"
@@ -126,7 +148,12 @@ const Login: React.FC = () => {
                 />
                 <span className="ml-2">Google</span>
               </Button>
-              <Button variant="outline" fullWidth>
+              <Button 
+                variant="outline" 
+                fullWidth
+                onClick={handleGithubLogin}
+                disabled={isLoading}
+              >
                 <img
                   className="h-5 w-5"
                   src="https://www.svgrepo.com/show/448234/github.svg"
