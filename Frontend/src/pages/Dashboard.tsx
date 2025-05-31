@@ -24,7 +24,7 @@ const Dashboard: React.FC = () => {
   const postAuthor = mockUsers.find(user => user.id === topForumPost.authorId) || mockUsers[0];
 
   return (
-    <div className="mx-auto max-w-7xl">
+    <div className="mx-auto max-w-7xl mt-[100px]">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Welcome back, {mockUsers[0].name}</h1>
         <p className="mt-2 text-gray-600">

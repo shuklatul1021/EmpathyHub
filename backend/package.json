@@ -4,8 +4,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -b",
-    "start" : "node ./dist/main.js",
-    "dev" : "npm run build && npm run start"
+    "start": "node ./dist/main.js",
+    "dev": "npm run build && npm run start"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +19,7 @@
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "prisma": "^6.8.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.8.3",
+    "zod": "^3.25.42"
   }
 }
