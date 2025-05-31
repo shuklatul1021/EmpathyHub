@@ -9,7 +9,8 @@ const passport_1 = __importDefault(require("passport"));
 const express_session_1 = __importDefault(require("express-session"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const UserRouter_1 = __importDefault(require("./Routes/UserRouter"));
-// Load environment variables
+const app = (0, express_1.default)();
+app.use(express_1.default.json());
 dotenv_1.default.config();
 // Debug environment variables
 console.log('Environment Variables:');
@@ -17,7 +18,6 @@ console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'Set' : 'Not Set
 console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'Set' : 'Not Set');
 console.log('GITHUB_CLIENT_ID:', process.env.GITHUB_CLIENT_ID ? 'Set' : 'Not Set');
 console.log('GITHUB_CLIENT_SECRET:', process.env.GITHUB_CLIENT_SECRET ? 'Set' : 'Not Set');
-const app = (0, express_1.default)();
 // Middleware
 app.use((0, cors_1.default)({
     origin: process.env.FRONTEND_URL || 'http://localhost:5173',

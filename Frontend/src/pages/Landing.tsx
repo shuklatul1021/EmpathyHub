@@ -21,7 +21,7 @@ const Landing = () => {
               <Button 
                 variant="ghost"
                 onClick={() => window.location.href = '/login'}
-                className="text-gray-300 hover:text-white"
+                className="text-gray-300 hover:text-black"
               >
                 Login
               </Button>

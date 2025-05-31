@@ -11,7 +11,8 @@ model User{
   id              String            @id@default(uuid())
   username        String            @unique
   firstname       String            
-  latname         String          
+  latname         String  
+  password        String        
   bio             String 
 }
 

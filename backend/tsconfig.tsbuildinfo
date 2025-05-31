@@ -1,1 +1,1 @@
-{"root":["./src/main.ts","./src/routes/userrouter.ts","./src/routes/middleware.ts","./src/types/passport-github2.d.ts"],"version":"5.8.3"}
+{"root":["./src/main.ts","./src/routes/userrouter.ts","./src/middleware/middleware.ts","./src/types/passport-github2.d.ts","./src/types/type.ts"],"version":"5.8.3"}

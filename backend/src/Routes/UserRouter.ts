@@ -4,6 +4,8 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20"
 import { Strategy as GitHubStrategy } from "passport-github2"
 import { Profile as GoogleProfile } from "passport-google-oauth20"
 import { Profile as GitHubProfile } from "passport-github2"
+import { SignUpSchema } from "../types/type"
+import z from "zod"
 
 const UserRouter = Router();
 
@@ -72,7 +74,7 @@ if (checkOAuthConfig()) {
         passport.authenticate('google', { failureRedirect: '/login' }),
         (req, res) => {
             // Successful authentication, redirect to frontend
-            res.redirect(process.env.FRONTEND_URL || 'http://localhost:5173');
+            res.redirect(process.env.FRONTEND_URL || 'http://localhost:5173/dashboard');
         }
     );
 
@@ -85,11 +87,10 @@ if (checkOAuthConfig()) {
         passport.authenticate('github', { failureRedirect: '/login' }),
         (req, res) => {
             // Successful authentication, redirect to frontend
-            res.redirect(process.env.FRONTEND_URL || 'http://localhost:5173');
+            res.redirect(process.env.FRONTEND_URL || 'http://localhost:5173/dashboard');
         }
     );
 } else {
-    // Fallback routes when OAuth is not configured
     UserRouter.get('/google', (req, res) => {
         res.status(503).json({ error: 'Google OAuth is not configured' });
     });
@@ -98,5 +99,27 @@ if (checkOAuthConfig()) {
         res.status(503).json({ error: 'GitHub OAuth is not configured' });
     });
 }
+
+UserRouter.post("/signup" , (req, res)=>{
+    const SignUpValidation  = SignUpSchema.safeParse(req.body);
+    try{
+        if(!SignUpValidation){
+            res.status(403).send({
+                message : "Wrong Credential"
+            })
+            return;
+        }
+        const UserSigUp : z.infer<typeof SignUpSchema>  = req.body;
+
+    }catch(e){
+
+    }
+
+})
+
+UserRouter.post("/login" , ()=>{
+
+})
+
 
 export default UserRouter;

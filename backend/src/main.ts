@@ -1,32 +1,20 @@
-<<<<<<< HEAD
-import Express from "express";
-import UserRouter from "./Routes/UserRouter";
-const app = Express();
-app.use(Express.json());
-=======
 import express from 'express';
 import cors from 'cors';
 import passport from 'passport';
 import session from 'express-session';
 import dotenv from 'dotenv';
 import UserRouter from './Routes/UserRouter';
->>>>>>> 0ceefa22a8d5a1ef347ca26b1ea0d7e0d70a8310
-
-// Load environment variables
+const app = express();
+app.use(express.json());
 dotenv.config();
 
-<<<<<<< HEAD
-app.use("/api/vi/user", UserRouter);
-=======
+
 // Debug environment variables
 console.log('Environment Variables:');
 console.log('GOOGLE_CLIENT_ID:', process.env.GOOGLE_CLIENT_ID ? 'Set' : 'Not Set');
 console.log('GOOGLE_CLIENT_SECRET:', process.env.GOOGLE_CLIENT_SECRET ? 'Set' : 'Not Set');
 console.log('GITHUB_CLIENT_ID:', process.env.GITHUB_CLIENT_ID ? 'Set' : 'Not Set');
 console.log('GITHUB_CLIENT_SECRET:', process.env.GITHUB_CLIENT_SECRET ? 'Set' : 'Not Set');
->>>>>>> 0ceefa22a8d5a1ef347ca26b1ea0d7e0d70a8310
-
-const app = express();
 
 // Middleware
 app.use(cors({
