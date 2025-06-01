@@ -23,7 +23,6 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Session configuration
 app.use(session({
   secret: process.env.JWT_SECRET || 'your-secret-key',
   resave: false,
@@ -34,7 +33,6 @@ app.use(session({
   }
 }));
 
-// Initialize Passport
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -48,15 +46,12 @@ passport.deserializeUser((user: any, done) => {
   done(null, user);
 });
 
-// Routes
 app.use('/auth', UserRouter);
 
-// Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
 });
 
-// Error handling middleware
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Something went wrong!' });

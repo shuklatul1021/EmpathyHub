@@ -4,8 +4,11 @@ import { Strategy as GoogleStrategy } from "passport-google-oauth20"
 import { Strategy as GitHubStrategy } from "passport-github2"
 import { Profile as GoogleProfile } from "passport-google-oauth20"
 import { Profile as GitHubProfile } from "passport-github2"
-import { SignUpSchema } from "../types/type"
+import { LoginSchema, SignUpSchema } from "../types/type"
 import z from "zod"
+import bcrypt from "bcrypt"
+import { JWT_SECRET, prismaclient } from "../config/import"
+import jwt from "jsonwebtoken"
 
 const UserRouter = Router();
 
@@ -14,6 +17,7 @@ const GOOGLE_CLIENT_SECRET="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"
 const GITHUB_CLIENT_ID="Ov23likaWc9eve6DqZpO"
 const GITHUB_CLIENT_SECRET="de1e85870e7d6b32a586175c803843a6e74ab10d"
 const BACKEND_URL = 'http://localhost:3000'
+
 // Check if OAuth credentials are configured
 const checkOAuthConfig = () => {
     const missingVars = [];
@@ -100,7 +104,7 @@ if (checkOAuthConfig()) {
     });
 }
 
-UserRouter.post("/signup" , (req, res)=>{
+UserRouter.post("/signup" , async(req, res)=>{
     const SignUpValidation  = SignUpSchema.safeParse(req.body);
     try{
         if(!SignUpValidation){
@@ -110,15 +114,78 @@ UserRouter.post("/signup" , (req, res)=>{
             return;
         }
         const UserSigUp : z.infer<typeof SignUpSchema>  = req.body;
-
+        const HashPassword = await bcrypt.hash(UserSigUp.password , 5);
+        const User = await prismaclient.user.create({
+            data : {
+                email : UserSigUp.email,
+                password : HashPassword,
+                username : UserSigUp.username,
+                firstname : UserSigUp.firstname,
+                latname : UserSigUp.lastname
+            }
+        })
+        if(!User){
+            res.status(403).send({
+                message : "Error While Signing Up"
+            })
+            return;
+        }
+        res.status(200).send({
+            message : "SignUp Succsessfully"
+        })
     }catch(e){
-
+        console.log(e);
+        res.status(500).send({
+            message : "Internal Server Error"
+        })
     }
 
 })
 
-UserRouter.post("/login" , ()=>{
+UserRouter.post("/login" , async(req, res)=>{
+    const LoginValidation = LoginSchema.safeParse(req.body);
+    if(!LoginValidation){
+        res.status(403).send({
+            message : "Wrong Credentials"
+        })
+        return;
+    }
+    try{
+        const UserLogin : z.infer<typeof LoginSchema> = req.body;
+        const VerifyEmail = await prismaclient.user.findFirst({ where : { email : UserLogin.email} });
+        if(!VerifyEmail){
+            res.status(403).send({
+                message : "Email Not Found"
+            })
+            return;
+        }
+        const VerifyPassword = await bcrypt.compare(UserLogin.email , VerifyEmail.password);
+        if(!VerifyPassword){
+            res.status(403).json({
+                message : "Incorrect Password"
+            })
+        }
 
+        const token = await jwt.sign({
+            id : VerifyEmail.id
+        }, JWT_SECRET)
+
+        if(!token){
+            res.status(403).send({
+                message : "Error While Adding Token"
+            })
+            return;
+        }
+        res.status(200).json({
+            token : token
+        })
+
+    }catch(e){
+        console.log(e);
+        res.status(500).send({
+            message : "Internal Server Error"
+        })
+    }
 })
 
 

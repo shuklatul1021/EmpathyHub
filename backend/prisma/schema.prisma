@@ -7,20 +7,120 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User{
-  id              String            @id@default(uuid())
-  username        String            @unique
-  firstname       String            
-  latname         String  
-  password        String        
-  bio             String 
+model User {
+  id              String           @id @default(cuid())
+  email           String           @unique
+  password        String
+  username        String           @unique
+  firstname       String
+  latname         String
+  avatar          String?
+  bio             String?
+  supportScore    Int?              @default(0)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime?         @updatedAt
+  tags            Tag[]            @relation("UserTags")
+  badges          Badge[]
+  moodEntries     MoodEntry[]
+  sentMessages    Message[]        @relation("SentMessages")
+  receivedThreads MessageThread[]  @relation("ThreadParticipants")
+  forumPosts      ForumPost[]
+  forumComments   ForumComment[]
+  privacySettings PrivacySettings?
 }
 
-model Post{
-
+model PrivacySettings {
+  id                  String  @id @default(cuid())
+  userId              String  @unique
+  user                User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  showEmail           Boolean @default(false)
+  showActivity        Boolean @default(true)
+  allowDirectMessages Boolean @default(true)
+  shareJournals       Boolean @default(false)
 }
 
-model Chat{
+model Tag {
+  id        String      @id @default(cuid())
+  name      String      @unique
+  users     User[]      @relation("UserTags")
+  posts     ForumPost[] @relation("PostTags")
+  resources Resource[]  @relation("ResourceTags")
+  moods     MoodEntry[] @relation("MoodTags")
+}
 
-  
+model Badge {
+  id          String   @id @default(cuid())
+  name        String
+  description String
+  icon        String
+  dateEarned  DateTime @default(now())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MoodEntry {
+  id        String   @id @default(cuid())
+  mood      String
+  notes     String?
+  timestamp DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tags      Tag[]    @relation("MoodTags")
+}
+
+model MessageThread {
+  id           String    @id @default(cuid())
+  participants User[]    @relation("ThreadParticipants")
+  messages     Message[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model Message {
+  id        String        @id @default(cuid())
+  content   String
+  isRead    Boolean       @default(false)
+  threadId  String
+  thread    MessageThread @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  senderId  String
+  sender    User          @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  timestamp DateTime      @default(now())
+}
+
+model ForumPost {
+  id        String         @id @default(cuid())
+  title     String
+  content   String
+  likes     Int            @default(0)
+  authorId  String
+  author    User           @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  tags      Tag[]          @relation("PostTags")
+  comments  ForumComment[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+}
+
+model ForumComment {
+  id        String    @id @default(cuid())
+  content   String
+  likes     Int       @default(0)
+  postId    String
+  post      ForumPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model Resource {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  category    String
+  type        String
+  url         String
+  imageUrl    String
+  tags        Tag[]    @relation("ResourceTags")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }
