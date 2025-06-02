@@ -1,4 +1,13 @@
 import z from "zod"
+import 'express';
+
+declare global {
+  namespace Express {
+    interface Request {
+      userId: string;
+    }
+  }
+}
 
 export const SignUpSchema = z.object({
     email : z.string().email( { message : "Plese Provide Valid Email"}),
@@ -11,3 +20,4 @@ export const LoginSchema = z.object({
     email : z.string().email( { message : "Plese Provide Valid Email"}),
     password : z.string(),
 })
+

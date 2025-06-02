@@ -46,7 +46,7 @@ passport.deserializeUser((user: any, done) => {
   done(null, user);
 });
 
-app.use('/auth', UserRouter);
+app.use("/api/v1/user", UserRouter);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });

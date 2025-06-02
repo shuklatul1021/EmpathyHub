@@ -8,6 +8,10 @@ const passport_1 = __importDefault(require("passport"));
 const passport_google_oauth20_1 = require("passport-google-oauth20");
 const passport_github2_1 = require("passport-github2");
 const type_1 = require("../types/type");
+const bcrypt_1 = __importDefault(require("bcrypt"));
+const import_1 = require("../config/import");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const middleware_1 = require("../middleware/middleware");
 const UserRouter = (0, express_1.default)();
 const GOOGLE_CLIENT_ID = "577784310858-sqip14v7hnsbgo0ns9jttumqieaip914.apps.googleusercontent.com";
 const GOOGLE_CLIENT_SECRET = "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";
@@ -88,20 +92,107 @@ else {
         res.status(503).json({ error: 'GitHub OAuth is not configured' });
     });
 }
-UserRouter.post("/signup", (req, res) => {
+UserRouter.post("/signup", async (req, res) => {
     const SignUpValidation = type_1.SignUpSchema.safeParse(req.body);
     try {
         if (!SignUpValidation) {
-            res.status(403).send({
+            res.status(403).json({
                 message: "Wrong Credential"
             });
             return;
         }
         const UserSigUp = req.body;
+        const HashPassword = await bcrypt_1.default.hash(UserSigUp.password, 5);
+        const User = await import_1.prismaclient.user.create({
+            data: {
+                email: UserSigUp.email,
+                password: HashPassword,
+                username: UserSigUp.username,
+                firstname: UserSigUp.firstname,
+                latname: UserSigUp.lastname
+            }
+        });
+        if (!User) {
+            res.status(403).json({
+                message: "Error While Signing Up"
+            });
+            return;
+        }
+        res.status(200).json({
+            message: "SignUp Succsessfully"
+        });
     }
     catch (e) {
+        console.log(e);
+        res.status(500).json({
+            message: "Internal Server Error"
+        });
     }
 });
-UserRouter.post("/login", () => {
+UserRouter.post("/login", async (req, res) => {
+    const LoginValidation = type_1.LoginSchema.safeParse(req.body);
+    if (!LoginValidation) {
+        res.status(403).json({
+            message: "Wrong Credentials"
+        });
+        return;
+    }
+    try {
+        const UserLogin = req.body;
+        const VerifyEmail = await import_1.prismaclient.user.findFirst({ where: { email: UserLogin.email } });
+        if (!VerifyEmail) {
+            res.status(403).json({
+                message: "Email Not Found"
+            });
+            return;
+        }
+        const VerifyPassword = await bcrypt_1.default.compare(UserLogin.password, VerifyEmail.password);
+        if (!VerifyPassword) {
+            res.status(403).json({
+                message: "Incorrect Password"
+            });
+        }
+        const token = await jsonwebtoken_1.default.sign({
+            id: VerifyEmail.id
+        }, import_1.JWT_SECRET);
+        if (!token) {
+            res.status(403).json({
+                message: "Error While Adding Token"
+            });
+            return;
+        }
+        res.status(200).json({
+            token: token
+        });
+    }
+    catch (e) {
+        console.log(e);
+        res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+});
+UserRouter.post("/userdetails", middleware_1.UserAuth, async (req, res) => {
+    const userId = req.userId;
+    try {
+        const UserDetails = await import_1.prismaclient.user.findFirst({ where: { id: userId } });
+        if (!UserDetails) {
+            res.status(403).json({
+                message: "Error While Fething Data"
+            });
+            return;
+        }
+        res.status(200).json({
+            User: UserDetails
+        });
+    }
+    catch (e) {
+        console.log(e);
+        res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+});
+UserRouter.post("/logout", (req, res) => {
 });
 exports.default = UserRouter;

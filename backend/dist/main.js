@@ -24,7 +24,6 @@ app.use((0, cors_1.default)({
     credentials: true
 }));
 app.use(express_1.default.json());
-// Session configuration
 app.use((0, express_session_1.default)({
     secret: process.env.JWT_SECRET || 'your-secret-key',
     resave: false,
@@ -34,7 +33,6 @@ app.use((0, express_session_1.default)({
         maxAge: 24 * 60 * 60 * 1000 // 24 hours
     }
 }));
-// Initialize Passport
 app.use(passport_1.default.initialize());
 app.use(passport_1.default.session());
 // Serialize user for the session
@@ -45,13 +43,10 @@ passport_1.default.serializeUser((user, done) => {
 passport_1.default.deserializeUser((user, done) => {
     done(null, user);
 });
-// Routes
-app.use('/auth', UserRouter_1.default);
-// Health check endpoint
+app.use("/api/v1/user", UserRouter_1.default);
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
-// Error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ error: 'Something went wrong!' });

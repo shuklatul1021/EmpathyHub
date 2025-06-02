@@ -9,6 +9,7 @@ import z from "zod"
 import bcrypt from "bcrypt"
 import { JWT_SECRET, prismaclient } from "../config/import"
 import jwt from "jsonwebtoken"
+import { UserAuth } from "../middleware/middleware"
 
 const UserRouter = Router();
 
@@ -108,7 +109,7 @@ UserRouter.post("/signup" , async(req, res)=>{
     const SignUpValidation  = SignUpSchema.safeParse(req.body);
     try{
         if(!SignUpValidation){
-            res.status(403).send({
+            res.status(403).json({
                 message : "Wrong Credential"
             })
             return;
@@ -125,17 +126,17 @@ UserRouter.post("/signup" , async(req, res)=>{
             }
         })
         if(!User){
-            res.status(403).send({
+            res.status(403).json({
                 message : "Error While Signing Up"
             })
             return;
         }
-        res.status(200).send({
+        res.status(200).json({
             message : "SignUp Succsessfully"
         })
     }catch(e){
         console.log(e);
-        res.status(500).send({
+        res.status(500).json({
             message : "Internal Server Error"
         })
     }
@@ -145,7 +146,7 @@ UserRouter.post("/signup" , async(req, res)=>{
 UserRouter.post("/login" , async(req, res)=>{
     const LoginValidation = LoginSchema.safeParse(req.body);
     if(!LoginValidation){
-        res.status(403).send({
+        res.status(403).json({
             message : "Wrong Credentials"
         })
         return;
@@ -154,12 +155,12 @@ UserRouter.post("/login" , async(req, res)=>{
         const UserLogin : z.infer<typeof LoginSchema> = req.body;
         const VerifyEmail = await prismaclient.user.findFirst({ where : { email : UserLogin.email} });
         if(!VerifyEmail){
-            res.status(403).send({
+            res.status(403).json({
                 message : "Email Not Found"
             })
             return;
         }
-        const VerifyPassword = await bcrypt.compare(UserLogin.email , VerifyEmail.password);
+        const VerifyPassword = await bcrypt.compare(UserLogin.password , VerifyEmail.password);
         if(!VerifyPassword){
             res.status(403).json({
                 message : "Incorrect Password"
@@ -171,7 +172,7 @@ UserRouter.post("/login" , async(req, res)=>{
         }, JWT_SECRET)
 
         if(!token){
-            res.status(403).send({
+            res.status(403).json({
                 message : "Error While Adding Token"
             })
             return;
@@ -182,10 +183,36 @@ UserRouter.post("/login" , async(req, res)=>{
 
     }catch(e){
         console.log(e);
-        res.status(500).send({
+        res.status(500).json({
             message : "Internal Server Error"
         })
     }
+})
+
+UserRouter.post("/userdetails",  UserAuth ,  async(req,res)=>{
+    const userId = req.userId;
+    try{
+        const UserDetails = await prismaclient.user.findFirst({ where : { id : userId}});
+        if(!UserDetails){
+            res.status(403).json({
+                message : "Error While Fething Data"
+            })
+            return;
+        }
+        res.status(200).json({
+            User : UserDetails
+        })
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            message : "Internal Server Error"
+        })
+    }
+})
+
+
+UserRouter.post("/logout", (req,res)=>{
+    
 })
 
 
