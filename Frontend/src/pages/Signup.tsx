@@ -1,28 +1,57 @@
-import React, { useState } from 'react';
-import { Heart, Mail, Lock, User, ArrowRight } from 'lucide-react';
-import Button from '../components/ui/Button';
-import Card from '../components/ui/Card';
+import React, { useState } from "react";
+import { Heart, Mail, Lock, User, ArrowRight } from "lucide-react";
+import Button from "../components/ui/Button";
+import Card from "../components/ui/Card";
+import { BACKEND_URL } from "../config";
+import { useNavigate } from "react-router";
 
 const Signup: React.FC = () => {
+  const Navigate = useNavigate()
+  const[username , setusername ] = useState("");
+  const[firsname , setfirstname ] = useState("");
+  const[lastname , setlastaname ] = useState("");
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
+    email: "",
+    password: "",
+    confirmPassword: "",
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
     // Handle signup logic here
-    console.log('Signup:', formData);
+    console.log("Signup:", username , firsname , lastname ,  formData.email , formData.password , formData.confirmPassword);
+    try{
+      const Response = await fetch(`${BACKEND_URL}/api/v1/user/signup`, {
+        method : "POST",
+        headers : {
+          "Content-Type" : "application/json" 
+        },
+        body : JSON.stringify({
+          email : formData.email,
+          password : formData.password ,
+          username :  username,
+          firstname : firsname,
+          lastname : lastname,
+        })
+      }) 
+      if(Response.ok){
+        alert("Sign Up Succsessfully");
+        Navigate("/login")
+      }else{
+        alert("Error While Signing Up")
+      }
+    }catch(e){
+      console.log(e);
+      alert("Error Internal Server Error")
+    }
   };
 
   return (
@@ -35,8 +64,11 @@ const Signup: React.FC = () => {
           Create your account
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          Already have an account?{' '}
-          <a href="/login" className="font-medium text-primary hover:text-primary-dark">
+          Already have an account?{" "}
+          <a
+            href="/login"
+            className="font-medium text-primary hover:text-primary-dark"
+          >
             Sign in
           </a>
         </p>
@@ -45,30 +77,80 @@ const Signup: React.FC = () => {
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <Card className="py-8 px-4 shadow sm:rounded-lg sm:px-10">
           <form className="space-y-6" onSubmit={handleSubmit}>
-            <div>
-              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
-                Full name
+            <div className="space-y-4">
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                User name
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                   <User className="h-5 w-5 text-gray-400" />
                 </div>
                 <input
-                  id="name"
+                  id="username"
                   name="name"
                   type="text"
                   autoComplete="name"
                   required
-                  value={formData.name}
-                  onChange={handleChange}
+                  value={username}
+                  onChange={(e)=> setusername(e.target.value)}
                   className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-primary focus:border-primary"
-                  placeholder="Enter your full name"
+                  placeholder="Enter your user name"
+                />
+              </div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                First Name
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <User className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="firstname"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  value={firsname}
+                  onChange={(e)=> setfirstname(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-primary focus:border-primary"
+                  placeholder="Enter your first name"
+                />
+              </div>
+              <label
+                htmlFor="name"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Last Name
+              </label>
+              <div className="mt-1 relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <User className="h-5 w-5 text-gray-400" />
+                </div>
+                <input
+                  id="lastname"
+                  name="name"
+                  type="text"
+                  autoComplete="name"
+                  required
+                  value={lastname}
+                  onChange={(e)=> setlastaname(e.target.value)}
+                  className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-primary focus:border-primary"
+                  placeholder="Enter your last name"
                 />
               </div>
             </div>
 
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email address
               </label>
               <div className="mt-1 relative">
@@ -90,7 +172,10 @@ const Signup: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
               <div className="mt-1 relative">
@@ -112,7 +197,10 @@ const Signup: React.FC = () => {
             </div>
 
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="confirmPassword"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Confirm password
               </label>
               <div className="mt-1 relative">
@@ -141,13 +229,22 @@ const Signup: React.FC = () => {
                 required
                 className="h-4 w-4 text-primary focus:ring-primary border-gray-300 rounded"
               />
-              <label htmlFor="terms" className="ml-2 block text-sm text-gray-900">
-                I agree to the{' '}
-                <a href="/terms" className="text-primary hover:text-primary-dark">
+              <label
+                htmlFor="terms"
+                className="ml-2 block text-sm text-gray-900"
+              >
+                I agree to the{" "}
+                <a
+                  href="/terms"
+                  className="text-primary hover:text-primary-dark"
+                >
                   Terms of Service
-                </a>{' '}
-                and{' '}
-                <a href="/privacy" className="text-primary hover:text-primary-dark">
+                </a>{" "}
+                and{" "}
+                <a
+                  href="/privacy"
+                  className="text-primary hover:text-primary-dark"
+                >
                   Privacy Policy
                 </a>
               </label>
@@ -169,7 +266,9 @@ const Signup: React.FC = () => {
                 <div className="w-full border-t border-gray-300" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                <span className="px-2 bg-white text-gray-500">
+                  Or continue with
+                </span>
               </div>
             </div>
 
@@ -184,8 +283,8 @@ const Signup: React.FC = () => {
               </Button>
               <Button variant="outline" fullWidth>
                 <img
-                  className="h-5 w-5"
-                  src="https://www.svgrepo.com/show/448234/github.svg"
+                  className="h-7 w-7"
+                  src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png"
                   alt="GitHub logo"
                 />
                 <span className="ml-2">GitHub</span>

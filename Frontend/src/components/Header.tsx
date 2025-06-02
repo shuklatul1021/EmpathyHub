@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { User } from '../types';
 import Avatar from './ui/Avatar';
-import { Menu, Bell, MessageCircle, Search, X, Heart, Users } from 'lucide-react';
+import { Menu, Bell, MessageCircle, Search, X, Heart } from 'lucide-react';
 
 interface HeaderProps {
   currentUser?: User;
   onNavToggle: () => void;
+  firstname : string,
+  latname : string
 }
 
-const Header: React.FC<HeaderProps> = ({ currentUser, onNavToggle }) => {
+const Header: React.FC<HeaderProps> = ({ currentUser, onNavToggle , firstname , latname }) => {
   const [isSearchActive, setIsSearchActive] = useState(false);
 
   return (
@@ -71,8 +73,8 @@ const Header: React.FC<HeaderProps> = ({ currentUser, onNavToggle }) => {
                 size="sm"
                 status="online"
               />
-              <span className="hidden ml-2 text-sm font-medium md:block">
-                {currentUser.name}
+              <span className="hidden ml-2 text-sm font-medium md:block  flex">
+                <div className='gap-x-4'>{firstname}{latname}</div>
               </span>
             </div>
           )}

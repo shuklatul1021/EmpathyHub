@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { Heart, Mail, Lock, ArrowRight } from 'lucide-react';
 import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
+import { BACKEND_URL } from '../config';
+import { useNavigate } from 'react-router';
 
 const Login: React.FC = () => {
+  const Navigate = useNavigate()
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -12,10 +15,28 @@ const Login: React.FC = () => {
     e.preventDefault();
     setIsLoading(true);
     try {
-      // Handle login logic here
       console.log('Login:', { email, password });
+      const Response = await fetch(`${BACKEND_URL}/api/v1/user/login` , {
+        method : "POST",
+        headers : {
+          "Content-Type" : "application/json"
+        },
+        body : JSON.stringify({
+          email : email,
+          password : password
+        })
+      })
+      const json = await Response.json();
+      if(Response.ok){
+        alert("Login Succsessfully");
+        localStorage.setItem('token' , json.token);
+        Navigate("/dashboard")
+      }else{
+        alert("Error While Authanticating")
+      }
     } catch (error) {
-      console.error('Login error:', error);
+      console.log(error);
+      alert("Internal Server Errro")
     } finally {
       setIsLoading(false);
     }
@@ -156,7 +177,7 @@ const Login: React.FC = () => {
               >
                 <img
                   className="h-5 w-5"
-                  src="https://www.svgrepo.com/show/448234/github.svg"
+                  src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png"
                   alt="GitHub logo"
                 />
                 <span className="ml-2">GitHub</span>

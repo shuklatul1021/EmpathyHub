@@ -10,6 +10,7 @@ import {
   Settings, 
   HelpCircle 
 } from 'lucide-react';
+import { useNavigate } from 'react-router';
 
 interface NavItem {
   label: string;
@@ -28,7 +29,6 @@ interface SidebarProps {
 const Sidebar: React.FC<SidebarProps> = ({
   isOpen,
   onClose,
-  onNavigate,
   currentPath,
 }) => {
   const navItems: NavItem[] = [
@@ -42,6 +42,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { label: 'Settings', icon: <Settings />, path: '/settings' },
     { label: 'Help & Support', icon: <HelpCircle />, path: '/help' },
   ];
+  const Navigate = useNavigate();
 
   return (
     <>
@@ -59,11 +60,6 @@ const Sidebar: React.FC<SidebarProps> = ({
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="mb-6 flex items-center justify-center">
-          <Heart className="h-8 w-8 text-accent" />
-          <span className="ml-2 text-2xl font-bold text-gray-900">EmpathyHub</span>
-        </div>
-
         <nav className="space-y-1">
           {navItems.map((item) => {
             const isActive = currentPath === item.path;
@@ -71,7 +67,7 @@ const Sidebar: React.FC<SidebarProps> = ({
               <button
                 key={item.label}
                 onClick={() => {
-                  onNavigate(item.path);
+                  Navigate(item.path);
                   if (isOpen) onClose();
                 }}
                 className={`flex w-full items-center rounded-lg px-4 py-3 text-sm font-medium transition-colors ${

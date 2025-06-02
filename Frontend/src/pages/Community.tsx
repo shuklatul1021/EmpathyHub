@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import ForumPost from '../components/ForumPost';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import Badge from '../components/ui/Badge';
 import { mockForumPosts, mockUsers } from '../data/mockData';
 import { Search, Filter, MessagesSquare, TrendingUp, Clock, Heart, Plus } from 'lucide-react';
 
