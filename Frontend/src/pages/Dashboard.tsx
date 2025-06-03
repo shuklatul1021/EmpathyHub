@@ -11,10 +11,14 @@ import {
   mockForumPosts 
 } from '../data/mockData';
 import { MessageCircle, TrendingUp, Award, UserPlus } from 'lucide-react';
+import { useRecoilValue } from 'recoil';
+import { UserDetails, UserMoodEntry } from '../State/ComponetState';
 
 const Dashboard: React.FC = () => {
   // Get other users for recommended connections
   const otherUsers = mockUsers.slice(1);
+  const Data = useRecoilValue(UserDetails);
+  const UserMood = useRecoilValue(UserMoodEntry);
   
   // Get latest resources
   const latestResources = mockResources.slice(0, 2);
@@ -27,7 +31,7 @@ const Dashboard: React.FC = () => {
     <>
       <div className="mx-auto max-w-7xl">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {mockUsers[0].name}</h1>
+          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {Data.firstname} {Data.latname}</h1>
           <p className="mt-2 text-gray-600">
             Track your mood, connect with peers, and discover helpful resources.
           </p>
@@ -43,7 +47,7 @@ const Dashboard: React.FC = () => {
                 </div>
                 <div>
                   <p className="text-sm text-gray-500">Active Conversations</p>
-                  <p className="text-2xl font-semibold">3</p>
+                  <p className="text-2xl font-semibold">{UserMood.length}</p>
                 </div>
               </Card>
               

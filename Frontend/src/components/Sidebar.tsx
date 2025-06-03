@@ -8,7 +8,8 @@ import {
   BookOpen,
   Calendar,
   Settings, 
-  HelpCircle 
+  HelpCircle, 
+  UserCircle
 } from 'lucide-react';
 import { useNavigate } from 'react-router';
 
@@ -32,10 +33,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   currentPath,
 }) => {
   const navItems: NavItem[] = [
-    { label: 'Dashboard', icon: <Home />, path: '/' },
+    { label: 'Dashboard', icon: <Home />, path: '/dashboard' },
     { label: 'Find Support', icon: <Users />, path: '/find-support' },
     { label: 'Messages', icon: <MessageCircle />, path: '/messages' },
     { label: 'Community', icon: <Heart />, path: '/community' },
+    { label: 'Users', icon: <UserCircle />, path: '/users' },
     { label: 'Mood Tracker', icon: <BarChart />, path: '/mood-tracker' },
     { label: 'Resources', icon: <BookOpen />, path: '/resources' },
     { label: 'Journal', icon: <Calendar />, path: '/journal' },

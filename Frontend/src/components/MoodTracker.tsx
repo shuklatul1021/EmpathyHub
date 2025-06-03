@@ -1,9 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MoodEntry } from '../types';
 import Card from './ui/Card';
 import Button from './ui/Button';
 import Badge from './ui/Badge';
 import { Smile, Frown, Meh, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { BACKEND_URL } from '../config';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { UserMoodEntry } from '../State/ComponetState';
 
 interface MoodTrackerProps {
   entries: MoodEntry[];
@@ -12,13 +15,14 @@ interface MoodTrackerProps {
 
 const MoodTracker: React.FC<MoodTrackerProps> = ({ 
   entries = [],
-  onAddEntry
 }) => {
   const [mood, setMood] = useState<MoodEntry['mood']>('neutral');
   const [notes, setNotes] = useState('');
   const [tags, setTags] = useState<string[]>([]);
   const [currentTag, setCurrentTag] = useState('');
-
+  const [isLoading, setIsLoading] = useState(false);
+  const setusermood = useSetRecoilState(UserMoodEntry)
+  const usermood = useRecoilValue(UserMoodEntry);
   const moodIcons = {
     veryBad: <ThumbsDown className="h-7 w-7 text-error" />,
     bad: <Frown className="h-7 w-7 text-error/80" />,
@@ -54,21 +58,61 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({
     setTags(tags.filter(tag => tag !== tagToRemove));
   };
 
-  const handleSubmit = () => {
-    if (onAddEntry) {
-      onAddEntry({
-        mood,
-        notes,
-        tags
+  const handleSubmit = async() => {
+    console.log(mood);
+    console.log(notes);
+    setIsLoading(true);
+    try{
+      const Resposne = await fetch(`${BACKEND_URL}/api/v1/main/postmoodentry`, {
+        method : "POST",
+        headers : {
+          token : localStorage.getItem('token') || '',
+          "Content-Type" : "application/json"
+        },
+        body : JSON.stringify({
+          mood : mood,
+          notes : notes
+        })
       });
+
+      if(Resposne.ok){
+        alert("Note Posted");
+        setIsLoading(false);
+        setMood('neutral');
+        setNotes('');
+        setTags([]);
+      }else{
+        alert("Error While Posting")
+      }
+    }catch(e){
+      console.log(e);
+      alert('Internal Server Errror')
     }
-    
-    // Reset form
-    setMood('neutral');
-    setNotes('');
-    setTags([]);
   };
 
+  const GetMoodUpdate = async()=>{
+    try{
+      const Response = await fetch(`${BACKEND_URL}/api/v1/main/alluserpost` , {
+        method : "GET",
+        headers : {
+          token : localStorage.getItem('token') || '',
+          "Content-Type" : "application/json"
+        }
+      })
+      const json = await Response.json();
+      if(Response.ok){
+        setusermood(json.posts);
+      }
+    }catch(e){
+      console.log(e);
+      alert("Internale Server Error")
+    }
+  }
+
+  useEffect(()=>{
+    GetMoodUpdate();
+  },[])
+  console.log(usermood);
   return (
     <div className="space-y-6">
       <Card className="animate-fade-in">
@@ -140,8 +184,8 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({
           </div>
         </div>
         
-        <Button onClick={handleSubmit} fullWidth>
-          Save Entry
+        <Button onClick={handleSubmit} fullWidth disabled={isLoading} >
+           {isLoading ? 'Saving Entry...' : 'Save Entry'}
         </Button>
       </Card>
       
@@ -149,8 +193,8 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({
         <Card className="animate-fade-in">
           <h3 className="text-xl font-semibold mb-4">Recent Mood History</h3>
           <div className="space-y-4">
-            {entries.map((entry) => (
-              <div key={entry.id} className={`p-4 rounded-lg ${moodColors[entry.mood]}`}>
+            {usermood.map((entry , index) => (
+              <div key={index} className={`p-4 rounded-lg ${moodColors[entry.mood]}`}>
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center">
                     {moodIcons[entry.mood]}
@@ -161,7 +205,7 @@ const MoodTracker: React.FC<MoodTrackerProps> = ({
                   </span>
                 </div>
                 {entry.notes && <p className="text-gray-700 mb-2">{entry.notes}</p>}
-                {entry.tags.length > 0 && (
+                {entry > 0 && (
                   <div className="flex flex-wrap gap-1">
                     {entry.tags.map((tag) => (
                       <Badge key={tag} variant="gray" size="sm">

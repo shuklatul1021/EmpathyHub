@@ -3,7 +3,8 @@ import Header from '../components/Header';
 import Sidebar from '../components/Sidebar';
 import { mockUsers } from '../data/mockData';
 import { BACKEND_URL } from '../config';
-
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { UserDetails } from '../State/ComponetState';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -12,9 +13,8 @@ interface MainLayoutProps {
 const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentPath, setCurrentPath] = useState('/');
-  const [user , setuser ] = useState({});
-  
-  // Use the first user as the current user for the demo
+  const SetData = useSetRecoilState(UserDetails);
+  const Data = useRecoilValue(UserDetails);
   const currentUser = mockUsers[0];
 
   const handleNavigation = (path: string) => {
@@ -32,7 +32,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       })
       const json = await Resposne.json();
       if(Resposne.ok){
-        setuser(json.User);
+        SetData(json.User);
       }
     }catch(e){
       console.log(e);
@@ -42,13 +42,14 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
   useEffect(()=>{
     GetDetails();
   },[])
+  console.log(Data);
   return (
     <div className="flex h-screen flex-col bg-gray-50">
       <Header 
         currentUser={currentUser} 
         onNavToggle={() => setIsSidebarOpen(!isSidebarOpen)} 
-        firstname={user.firstname}
-        latname={user.latname}
+        firstname={Data.firstname}
+        latname={Data.latname}
       />
       
       <div className="flex flex-1 overflow-hidden">

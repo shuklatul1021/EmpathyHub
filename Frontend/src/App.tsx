@@ -1,38 +1,75 @@
-import { BrowserRouter , Route, Routes } from 'react-router';
+import { BrowserRouter , Navigate, Route, Routes, useNavigate } from 'react-router';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
-
-import {  } from "react-router-dom"
 import Signup from './pages/Signup';
 import Dashboard from './pages/Dashboard';
 import MainLayout from './layouts/MainLayout';
 import Messages from './pages/Messages';
 import Community from './pages/Community';
 import FindSupport from './pages/FindSupport';
-import ResourceCard from './components/ResourceCard';
 import Resources from './pages/Resources';
-import { RecoilRoot } from 'recoil';
+import { RecoilRoot, useRecoilValue } from 'recoil';
+import Users from './pages/Users';
+import { IsAuthicated } from './State/ComponetState';
 
-
-function App() {
-  return(
-    <>  
-      <BrowserRouter>
-        <Routes>
-          <Route path='/' element={<Landing></Landing>}></Route>
-          <Route path='/login' element={<Login></Login>}></Route>
-          <Route path='/signup' element={<Signup></Signup>}></Route>
-          <Route path='/dashboard' element={<RecoilRoot><MainLayout children={<Dashboard></Dashboard>}></MainLayout></RecoilRoot>}></Route>
-          <Route path='/messages' element={<MainLayout children={<Messages></Messages>}></MainLayout>}></Route>
-          <Route path='/community' element={<MainLayout children={<Community></Community>}></MainLayout>}></Route>
-          <Route path='/find-support' element={<MainLayout children={<FindSupport></FindSupport>}></MainLayout>}></Route>
-          <Route path='/resources' element={<MainLayout children={<Resources></Resources>}></MainLayout>}></Route>
-        </Routes>
-      </BrowserRouter>
-    
-    </>
-  )
-
+interface RouteProps {
+  children: React.ReactNode;
 }
+
+// Protected Route Component
+const ProtectedRoute: React.FC<RouteProps> = ({ children }) => {
+  const isAuth = useRecoilValue(IsAuthicated);
+  return isAuth ? <>{children}</> : <Navigate to="/login" replace />;
+};
+
+// Public Route Component (redirects to dashboard if already authenticated)
+const PublicRoute: React.FC<RouteProps> = ({ children }) => {
+  const isAuth = useRecoilValue(IsAuthicated);
+  return !isAuth ? <>{children}</> : <Navigate to="/dashboard" replace />;
+};
+
+// Layout wrapper for protected routes
+const ProtectedLayout: React.FC<RouteProps> = ({ children }) => {
+  return (
+    <ProtectedRoute>
+      <MainLayout>
+        {children}
+      </MainLayout>
+    </ProtectedRoute>
+  );
+};
+
+// App Routes Component (inside RecoilRoot)
+const AppRoutes: React.FC = () => {
+  return (
+    <BrowserRouter>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<PublicRoute><Landing /></PublicRoute>} />
+        <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+        <Route path="/signup" element={<PublicRoute><Signup /></PublicRoute>} />
+
+        {/* Protected Routes */}
+        <Route path="/dashboard" element={<ProtectedLayout><Dashboard /></ProtectedLayout>} />
+        <Route path="/messages" element={<ProtectedLayout><Messages /></ProtectedLayout>} />
+        <Route path="/community" element={<ProtectedLayout><Community /></ProtectedLayout>} />
+        <Route path="/find-support" element={<ProtectedLayout><FindSupport /></ProtectedLayout>} />
+        <Route path="/resources" element={<ProtectedLayout><Resources /></ProtectedLayout>} />
+        <Route path="/users" element={<ProtectedLayout><Users /></ProtectedLayout>} />
+
+        {/* Catch all route */}
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
+};
+
+const App: React.FC = () => {
+  return (
+    <RecoilRoot>
+      <AppRoutes />
+    </RecoilRoot>
+  );
+};
 
 export default App;

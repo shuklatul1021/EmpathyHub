@@ -68,13 +68,13 @@ const Header: React.FC<HeaderProps> = ({ currentUser, onNavToggle , firstname , 
           {currentUser && (
             <div className="ml-4 flex items-center">
               <Avatar
-                src={currentUser.avatar}
+                src={'https://media.licdn.com/dms/image/v2/D4D03AQHf3MsJwU7SYQ/profile-displayphoto-shrink_400_400/B4DZQYgFeyGgAs-/0/1735577853094?e=1754524800&v=beta&t=KubI_wliTg_387t12IWVbNmHgD7Nnal4DbO19kJUxQ0'}
                 alt={currentUser.name}
                 size="sm"
                 status="online"
               />
-              <span className="hidden ml-2 text-sm font-medium md:block  flex">
-                <div className='gap-x-4'>{firstname}{latname}</div>
+              <span className="hidden ml-2 text-sm font-medium md:block flex">                 
+                <div className=''>{firstname} {latname}</div>               
               </span>
             </div>
           )}

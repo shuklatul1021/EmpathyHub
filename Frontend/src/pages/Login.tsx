@@ -4,12 +4,15 @@ import Button from '../components/ui/Button';
 import Card from '../components/ui/Card';
 import { BACKEND_URL } from '../config';
 import { useNavigate } from 'react-router';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { IsAuthicated } from '../State/ComponetState';
 
 const Login: React.FC = () => {
   const Navigate = useNavigate()
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const SetisAuth = useSetRecoilState(IsAuthicated);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +33,8 @@ const Login: React.FC = () => {
       if(Response.ok){
         alert("Login Succsessfully");
         localStorage.setItem('token' , json.token);
-        Navigate("/dashboard")
+        SetisAuth(true)
+        Navigate("/dashboard");
       }else{
         alert("Error While Authanticating")
       }
