@@ -172,7 +172,7 @@ UserRouter.post("/login", async (req, res) => {
         });
     }
 });
-UserRouter.post("/userdetails", middleware_1.UserAuth, async (req, res) => {
+UserRouter.get("/userdetails", middleware_1.UserAuth, async (req, res) => {
     const userId = req.userId;
     try {
         const UserDetails = await import_1.prismaclient.user.findFirst({ where: { id: userId } });
@@ -191,6 +191,24 @@ UserRouter.post("/userdetails", middleware_1.UserAuth, async (req, res) => {
         res.status(500).json({
             message: "Internal Server Error"
         });
+    }
+});
+UserRouter.get("/alluser", async (req, res) => {
+    try {
+        const User = await import_1.prismaclient.user.findMany();
+        if (!User) {
+            res.status(403).json({
+                message: "Unable To Find The Users"
+            });
+            return;
+        }
+        res.status(200).json({
+            users: User
+        });
+    }
+    catch (e) {
+        console.log(e);
+        res.status(500).json({});
     }
 });
 UserRouter.post("/logout", (req, res) => {

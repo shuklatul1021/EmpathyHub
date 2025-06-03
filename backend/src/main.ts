@@ -4,6 +4,7 @@ import passport from 'passport';
 import session from 'express-session';
 import dotenv from 'dotenv';
 import UserRouter from './Routes/UserRouter';
+import MainRouter from './Routes/MainRouter';
 const app = express();
 app.use(express.json());
 dotenv.config();
@@ -21,6 +22,8 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true
 }));
+
+
 app.use(express.json());
 
 app.use(session({
@@ -29,7 +32,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
@@ -47,6 +50,7 @@ passport.deserializeUser((user: any, done) => {
 });
 
 app.use("/api/v1/user", UserRouter);
+app.use("/api/v1/main", MainRouter);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });

@@ -66,6 +66,7 @@ model MoodEntry {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   tags      Tag[]    @relation("MoodTags")
+  createdAt DateTime  @default(now())
 }
 
 model MessageThread {

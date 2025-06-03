@@ -189,7 +189,7 @@ UserRouter.post("/login" , async(req, res)=>{
     }
 })
 
-UserRouter.post("/userdetails",  UserAuth ,  async(req,res)=>{
+UserRouter.get("/userdetails",  UserAuth ,  async(req,res)=>{
     const userId = req.userId;
     try{
         const UserDetails = await prismaclient.user.findFirst({ where : { id : userId}});
@@ -210,6 +210,25 @@ UserRouter.post("/userdetails",  UserAuth ,  async(req,res)=>{
     }
 })
 
+UserRouter.get("/alluser" , async(req, res)=>{
+    try{
+        const User = await prismaclient.user.findMany();
+        if(!User){
+            res.status(403).json({
+                message : "Unable To Find The Users"
+            })
+            return;
+        }
+        res.status(200).json({
+            users : User
+        })
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+
+        })
+    }
+})
 
 UserRouter.post("/logout", (req,res)=>{
     

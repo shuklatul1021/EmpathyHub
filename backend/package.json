@@ -4,6 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc -b",
+    "db:generate" : "npx prisma generate && cd ..",
     "start": "node ./dist/main.js",
     "dev": "npm run build && npm run start"
   },

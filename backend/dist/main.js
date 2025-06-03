@@ -9,6 +9,7 @@ const passport_1 = __importDefault(require("passport"));
 const express_session_1 = __importDefault(require("express-session"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const UserRouter_1 = __importDefault(require("./Routes/UserRouter"));
+const MainRouter_1 = __importDefault(require("./Routes/MainRouter"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 dotenv_1.default.config();
@@ -30,7 +31,7 @@ app.use((0, express_session_1.default)({
     saveUninitialized: false,
     cookie: {
         secure: process.env.NODE_ENV === 'production',
-        maxAge: 24 * 60 * 60 * 1000 // 24 hours
+        maxAge: 24 * 60 * 60 * 1000
     }
 }));
 app.use(passport_1.default.initialize());
@@ -44,6 +45,7 @@ passport_1.default.deserializeUser((user, done) => {
     done(null, user);
 });
 app.use("/api/v1/user", UserRouter_1.default);
+app.use("/api/v1/main", MainRouter_1.default);
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
