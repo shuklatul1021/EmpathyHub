@@ -1,4 +1,4 @@
-import { BrowserRouter , Navigate, Route, Routes, useNavigate } from 'react-router';
+import { BrowserRouter , Navigate, Route, Routes } from 'react-router';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
@@ -11,6 +11,10 @@ import Resources from './pages/Resources';
 import { RecoilRoot, useRecoilValue } from 'recoil';
 import Users from './pages/Users';
 import { IsAuthicated } from './State/ComponetState';
+import Help from './pages/Help';
+import Journal from './pages/Journal';
+import Settings from './pages/Settings';
+import UserDetail from './pages/UserDetails';
 
 interface RouteProps {
   children: React.ReactNode;
@@ -56,6 +60,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/find-support" element={<ProtectedLayout><FindSupport /></ProtectedLayout>} />
         <Route path="/resources" element={<ProtectedLayout><Resources /></ProtectedLayout>} />
         <Route path="/users" element={<ProtectedLayout><Users /></ProtectedLayout>} />
+        <Route path="/help" element={<ProtectedLayout><Help/></ProtectedLayout>} />
+        <Route path="/you" element={<ProtectedLayout><UserDetail/></ProtectedLayout>} />
+        <Route path="/journal" element={<ProtectedLayout><Journal></Journal></ProtectedLayout>} />
+        <Route path="/settings" element={<ProtectedLayout><Settings></Settings></ProtectedLayout>} />
+        <Route path="/mood-tracker" element={<ProtectedLayout><Settings></Settings></ProtectedLayout>} />
 
         {/* Catch all route */}
         <Route path="*" element={<Navigate to="/login" replace />} />

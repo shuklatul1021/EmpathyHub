@@ -13,6 +13,8 @@ const Login: React.FC = () => {
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const SetisAuth = useSetRecoilState(IsAuthicated);
+  const [issuccsessAlert , setissuccsessAlert ] = useState(false); 
+  const [isfailAlert , setisfailAlert ] = useState(false); 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,12 +33,24 @@ const Login: React.FC = () => {
       })
       const json = await Response.json();
       if(Response.ok){
-        alert("Login Succsessfully");
+        setissuccsessAlert(true);
         localStorage.setItem('token' , json.token);
-        SetisAuth(true)
+        await new Promise((res , rej)=> {
+          setTimeout(()=>{
+            res("Solved")
+          },5000)
+        })
+        SetisAuth(true);
+        setissuccsessAlert(false);
         Navigate("/dashboard");
       }else{
-        alert("Error While Authanticating")
+        setisfailAlert(true);
+        await new Promise((res , rej)=> {
+          setTimeout(()=>{
+            res("Solved")
+          },5000)
+        })
+        setisfailAlert(false);
       }
     } catch (error) {
       console.log(error);
@@ -57,6 +71,17 @@ const Login: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/5 to-white flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        {issuccsessAlert ? 
+          <div className="p-4 mb-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
+            <span className="font-medium">Login Success!</span> Redirecting To The Dashboard
+          </div>
+        : <div></div>}
+
+        { isfailAlert ? 
+          <div className="p-4 mb-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
+            <span className="font-medium">Login Fail!</span> Check Your Credential And Try Again.
+          </div>
+        : <div></div>}
         <div className="flex justify-center">
           <Heart className="h-12 w-12 text-primary" />
         </div>
@@ -70,6 +95,7 @@ const Login: React.FC = () => {
           </a>
         </p>
       </div>
+   
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <Card className="py-8 px-4 shadow sm:rounded-lg sm:px-10">

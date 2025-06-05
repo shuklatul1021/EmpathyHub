@@ -12,13 +12,14 @@ import {
 } from '../data/mockData';
 import { MessageCircle, TrendingUp, Award, UserPlus } from 'lucide-react';
 import { useRecoilValue } from 'recoil';
-import { UserDetails, UserMoodEntry } from '../State/ComponetState';
+import { IsLoading, UserDetails, UserMoodEntry } from '../State/ComponetState';
 
 const Dashboard: React.FC = () => {
   // Get other users for recommended connections
   const otherUsers = mockUsers.slice(1);
   const Data = useRecoilValue(UserDetails);
   const UserMood = useRecoilValue(UserMoodEntry);
+  const isLoading = useRecoilValue(IsLoading);
   
   // Get latest resources
   const latestResources = mockResources.slice(0, 2);
@@ -27,6 +28,63 @@ const Dashboard: React.FC = () => {
   const topForumPost = mockForumPosts[0];
   const postAuthor = mockUsers.find(user => user.id === topForumPost.authorId) || mockUsers[0];
 
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-7xl animate-pulse">
+        {/* Stats Cards Skeleton */}
+        <div className="mb-8">
+          <div className="h-8 w-64 bg-gray-200 rounded mb-2"></div>
+          <div className="h-4 w-96 bg-gray-200 rounded"></div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+          <div className="md:col-span-2 space-y-6">
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+              {[1, 2, 3].map((i) => (
+                <Card key={i}>
+                  <div className="h-20 bg-gray-200 rounded"></div>
+                </Card>
+              ))}
+            </div>
+
+            {/* Mood Tracker Skeleton */}
+            <Card>
+              <div className="h-64 bg-gray-200 rounded"></div>
+            </Card>
+
+            {/* Forum Post Skeleton */}
+            <Card>
+              <div className="h-48 bg-gray-200 rounded"></div>
+            </Card>
+          </div>
+
+          <div className="space-y-6">
+            {/* Recommended Connection Skeleton */}
+            <Card>
+              <div className="h-40 bg-gray-200 rounded"></div>
+            </Card>
+
+            {/* Resources Skeleton */}
+            <Card>
+              <div className="space-y-4">
+                <div className="h-32 bg-gray-200 rounded"></div>
+                <div className="h-32 bg-gray-200 rounded"></div>
+              </div>
+            </Card>
+
+            {/* Quick Actions Skeleton */}
+            <Card>
+              <div className="space-y-2">
+                <div className="h-10 bg-gray-200 rounded"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <>
       <div className="mx-auto max-w-7xl">

@@ -1,18 +1,35 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import UserCard from '../components/UserCard';
 import Card from '../components/ui/Card';
-import { mockUsers } from '../data/mockData';
 import { Search, Users as UsersIcon } from 'lucide-react';
+import { useRecoilValue, useSetRecoilState } from 'recoil';
+import { AllUser } from '../State/ComponetState';
+import { BACKEND_URL } from '../config';
 
 const Users: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const allUser = useRecoilValue(AllUser);
+  const SetallUser = useSetRecoilState(AllUser);
   
-  const filteredUsers = mockUsers.filter(user => 
-    searchTerm === '' || 
-    user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.bio.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const getAllUser = async()=>{
+    const Res = await fetch(`${BACKEND_URL}/api/v1/user/alluser`, {
+      method : "GET",
+      headers : {
+        token : localStorage.getItem('token') || '',
+        "Content-Type" : "application/type"
+      }
+    })
+    const json = await Res.json();
+    if(Res.ok){
+      SetallUser(json.users)
+    }else(
+      alert("Error While Fething")
+    )
+  }
 
+  useEffect(()=>{
+    getAllUser();
+  },[])
   return (
     <div className="mx-auto max-w-7xl">
       <div className="mb-6">
@@ -40,9 +57,9 @@ const Users: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {filteredUsers.length > 0 ? (
-          filteredUsers.map((user, index) => (
-            <div key={user.id} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+        {allUser.length > 0 ? (
+          allUser.map((user, index) => (
+            <div key={index} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
               <UserCard 
                 user={user}
                 onConnect={() => {}}

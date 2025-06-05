@@ -43,6 +43,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { label: 'Journal', icon: <Calendar />, path: '/journal' },
     { label: 'Settings', icon: <Settings />, path: '/settings' },
     { label: 'Help & Support', icon: <HelpCircle />, path: '/help' },
+    { label: 'You', icon: <UserCircle />, path: '/you' },
   ];
   const Navigate = useNavigate();
 

@@ -4,6 +4,8 @@ import Card from './ui/Card';
 import Avatar from './ui/Avatar';
 import Badge from './ui/Badge';
 import { Award, Users } from 'lucide-react';
+import { UserDetails } from '../State/ComponetState';
+import { useRecoilValue } from 'recoil';
 
 interface UserCardProps {
   user: User;
@@ -18,6 +20,8 @@ const UserCard: React.FC<UserCardProps> = ({
   matchScore,
   onConnect 
 }) => {
+  const Userdetails = useRecoilValue(UserDetails)
+  const Usertag = JSON.parse(Userdetails.tags[0].name);
   return (
     <Card className={`
       ${isMatch ? 'border-2 border-primary/30' : ''}
@@ -34,7 +38,7 @@ const UserCard: React.FC<UserCardProps> = ({
         
         <div className="flex-1">
           <div className="flex justify-between items-start">
-            <h3 className="text-lg font-semibold">{user.name}</h3>
+            <h3 className="text-lg font-semibold"><div>{user.firstname} {user.latname}</div></h3>
             {matchScore && (
               <Badge variant="primary" className="flex items-center gap-1">
                 <Users className="h-3.5 w-3.5" />
@@ -46,26 +50,26 @@ const UserCard: React.FC<UserCardProps> = ({
           <p className="text-gray-600 mt-1 mb-3">{user.bio}</p>
           
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {user.tags.map((tag) => (
+            {Usertag.map((tag) => (
               <Badge key={tag} variant="gray" size="sm">
                 {tag}
               </Badge>
             ))}
           </div>
           
-          {user.badges.length > 0 && (
+          {user && (
             <div className="mb-4">
               <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
                 <Award className="h-4 w-4 text-primary" />
                 <span>Badges</span>
               </h4>
-              <div className="flex flex-wrap gap-2">
+              {/* <div className="flex flex-wrap gap-2">
                 {user.badges.map((badge) => (
                   <Badge key={badge.id} variant="secondary" className="flex items-center gap-1">
                     {badge.name}
                   </Badge>
                 ))}
-              </div>
+              </div> */}
             </div>
           )}
           
@@ -74,7 +78,7 @@ const UserCard: React.FC<UserCardProps> = ({
               onClick={onConnect}
               className="mt-2 text-sm font-medium text-primary hover:text-primary-dark hover:underline"
             >
-              Connect with {user.name} →
+              Connect with {user.firstname} {user.latname} →
             </button>
           )}
         </div>

@@ -15,3 +15,13 @@ export const UserMoodEntry = atom({
     key : "moodentry",
     default : []
 })
+
+export const AllUser = atom({
+    key : "alluser",
+    default : []
+})
+
+export const IsLoading = atom({
+    key : "loading",
+    default : true
+})
