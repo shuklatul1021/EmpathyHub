@@ -1,6 +1,7 @@
 import Router from "express"
 import { UserAuth } from "../middleware/middleware";
 import { prismaclient } from "../config/import";
+import { upload } from "../uploads/uplode";
 const MainRouter = Router();
 
 
@@ -52,17 +53,140 @@ MainRouter.get("/alluserpost", UserAuth , async(req, res)=>{
     }
 })
 
-MainRouter.post("/addtags" , UserAuth , async(req, res)=>{
+MainRouter.post("/addusertag" , UserAuth , async(req, res)=>{
     try{
+        const { tag } = req.body;
+        const userId = req.userId;
+        const Tag = await prismaclient.tag.upsert({
+            where : { name : tag},
+            update : { },
+            create : { name : tag}
+        });
 
+        await prismaclient.user.update({
+            where : { id : userId},
+            data : {
+                tags : {
+                    connect : { id : Tag.id }
+                }
+            }
+        })
+        res.status(200).json({ message: "Tag added to user" });
     }catch(e){
         console.log(e);
         res.status(500).json({
             message : "Internal Server Error"
         })
     }
-
 })
+
+
+
+MainRouter.post("/addposttag/:postId" , UserAuth , async(req, res)=>{
+    try{
+        const { tag } = req.body;
+        const postid = req.params.postId;
+        const Tag = await prismaclient.tag.upsert({
+            where : { name : tag},
+            update : { },
+            create : { name : tag}
+        });
+
+        await prismaclient.user.update({
+            where : { id : postid},
+            data : {
+                tags : {
+                    connect : { id : Tag.id }
+                }
+            }
+        })
+        res.status(200).json({ message: "Tag added to Post" });
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            message : "Internal Server Error"
+        })
+    }
+})
+MainRouter.post("/addposttag/:moodEntryId " , UserAuth , async(req, res)=>{
+    try{
+        const { tag } = req.body;
+        const moodEntryId  = req.params.moodEntryId;
+        const Tag = await prismaclient.tag.upsert({
+            where : { name : tag},
+            update : { },
+            create : { name : tag}
+        });
+
+        await prismaclient.user.update({
+            where : { id : moodEntryId },
+            data : {
+                tags : {
+                    connect : { id : Tag.id }
+                }
+            }
+        })
+        res.status(200).json({ message: "Tag added to Mood Entry" });
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            message : "Internal Server Error"
+        })
+    }
+})
+MainRouter.post("/addposttag/:resourceId  " , UserAuth , async(req, res)=>{
+    try{
+        const { tag } = req.body;
+        const resourceId   = req.params.resourceId ;
+        const Tag = await prismaclient.tag.upsert({
+            where : { name : tag},
+            update : { },
+            create : { name : tag}
+        });
+
+        await prismaclient.user.update({
+            where : { id : resourceId  },
+            data : {
+                tags : {
+                    connect : { id : Tag.id }
+                }
+            }
+        })
+        res.status(200).json({ message: "Tag added to resource Entry" });
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            message : "Internal Server Error"
+        })
+    }
+})
+
+MainRouter.post('/upload', UserAuth , async (req, res) => {
+  try {
+    const  { ImageUrl }  = req.body;
+    const id = req.userId;
+    const InsertImage = await prismaclient.user.update({
+        data : {
+            avatar : ImageUrl
+        },
+        where : {
+            id : id
+        }
+    })
+    if(!InsertImage){
+        res.status(403).json({
+            message : "Error While Adding Image"
+        })
+    }
+    res.status(200).json({
+        message : "Image Added"
+    })
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
 
 
 export default MainRouter

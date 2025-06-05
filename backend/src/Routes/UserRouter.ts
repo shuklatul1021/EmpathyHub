@@ -5,7 +5,7 @@ import { Strategy as GitHubStrategy } from "passport-github2"
 import { Profile as GoogleProfile } from "passport-google-oauth20"
 import { Profile as GitHubProfile } from "passport-github2"
 import { LoginSchema, SignUpSchema } from "../types/type"
-import z from "zod"
+import z, { any } from "zod"
 import bcrypt from "bcrypt"
 import { JWT_SECRET, prismaclient } from "../config/import"
 import jwt from "jsonwebtoken"
@@ -192,7 +192,7 @@ UserRouter.post("/login" , async(req, res)=>{
 UserRouter.get("/userdetails",  UserAuth ,  async(req,res)=>{
     const userId = req.userId;
     try{
-        const UserDetails = await prismaclient.user.findFirst({ where : { id : userId}});
+        const UserDetails = await prismaclient.user.findFirst({ where : { id : userId} , include : { tags : true }});
         if(!UserDetails){
             res.status(403).json({
                 message : "Error While Fething Data"
@@ -210,9 +210,10 @@ UserRouter.get("/userdetails",  UserAuth ,  async(req,res)=>{
     }
 })
 
-UserRouter.get("/alluser" , async(req, res)=>{
+UserRouter.get("/alluser" ,  UserAuth , async(req, res)=>{
     try{
-        const User = await prismaclient.user.findMany();
+        const UserId = req.userId;
+        const User = await prismaclient.user.findMany( { where : { id : { not : UserId} }});
         if(!User){
             res.status(403).json({
                 message : "Unable To Find The Users"
@@ -232,6 +233,60 @@ UserRouter.get("/alluser" , async(req, res)=>{
 
 UserRouter.post("/logout", (req,res)=>{
     
+})
+
+UserRouter.get("/verify", UserAuth , async(req,res)=>{
+    try{
+        const UserId = req.userId;
+        if(UserId){
+            res.status(200).json({
+                message : "Verified"
+            })
+        }else{
+            res.status(403).json({
+                message : "Not Verified"
+            })
+        }
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            message : "Internal Server Error"
+        })
+    }
+    
+})
+
+
+UserRouter.post("/updateuserdetails" , UserAuth , async(req, res)=>{
+    try{
+        const UserID = req.userId;
+        const { firstname , lastname , bio , email } = req.body;
+        const UpdateUser = await prismaclient.user.update({
+            data : {
+                firstname : firstname,
+                latname : lastname,
+                bio : bio,
+                email : email
+            },
+            where : {
+                id : UserID
+            }
+        })
+        if(!UpdateUser){
+            res.status(403).json({
+                message : "Error While Updating"
+            })
+            return ;
+        }
+        res.status(200).json({
+            message : "Details Updated"
+        })
+    }catch(e){
+        console.log(e);
+        res.status(500).json({
+            message : "Internal Server Error"
+        })
+    }
 })
 
 
