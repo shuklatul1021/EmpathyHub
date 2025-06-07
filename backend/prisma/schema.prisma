@@ -27,6 +27,9 @@ model User {
   forumPosts      ForumPost[]
   forumComments   ForumComment[]
   privacySettings PrivacySettings?
+
+  sentConnectionRequests     ConnectionRequest[] @relation("SentConnectionRequests")
+  receivedConnectionRequests ConnectionRequest[] @relation("ReceivedConnectionRequests")
 }
 
 model PrivacySettings {
@@ -124,4 +127,24 @@ model Resource {
   tags        Tag[]    @relation("ResourceTags")
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+
+model ConnectionRequest {
+  id          String   @id @default(cuid())
+  senderId    String
+  receiverId  String
+  status      ConnectionStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  sender      User     @relation("SentConnectionRequests", fields: [senderId], references: [id], onDelete: Cascade)
+  receiver    User     @relation("ReceivedConnectionRequests", fields: [receiverId], references: [id], onDelete: Cascade)
+}
+
+enum ConnectionStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+  CANCELLED
 }

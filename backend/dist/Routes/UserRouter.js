@@ -196,7 +196,7 @@ UserRouter.get("/userdetails", middleware_1.UserAuth, async (req, res) => {
 UserRouter.get("/alluser", middleware_1.UserAuth, async (req, res) => {
     try {
         const UserId = req.userId;
-        const User = await import_1.prismaclient.user.findMany({ where: { id: { not: UserId } } });
+        const User = await import_1.prismaclient.user.findMany({ where: { id: { not: UserId } }, include: { tags: true } });
         if (!User) {
             res.status(403).json({
                 message: "Unable To Find The Users"
@@ -264,6 +264,80 @@ UserRouter.post("/updateuserdetails", middleware_1.UserAuth, async (req, res) =>
         console.log(e);
         res.status(500).json({
             message: "Internal Server Error"
+        });
+    }
+});
+UserRouter.post("/sendconnectionrequest/:receiverId", middleware_1.UserAuth, async (req, res) => {
+    try {
+        const senderId = req.userId;
+        const receiverId = req.params.receiverId;
+        const SendingRequest = await import_1.prismaclient.connectionRequest.create({
+            data: {
+                senderId: senderId,
+                receiverId: receiverId,
+                status: "PENDING"
+            }
+        });
+        if (!SendingRequest) {
+            res.status(403).json({
+                message: "Error While Sending"
+            });
+            return;
+        }
+        res.status(200).json({
+            message: "Connection Request Sended"
+        });
+    }
+    catch (e) {
+        console.log(e);
+        res.status(500).json({
+            message: "Internal Server Error"
+        });
+    }
+});
+UserRouter.post("/connectionreq/:id/status", middleware_1.UserAuth, async (req, res) => {
+    try {
+        const id = req.params.id;
+        const Status = req.body;
+        const UpdatingStatus = await import_1.prismaclient.connectionRequest.update({
+            where: { id: id },
+            data: { status: Status }
+        });
+        if (!UpdatingStatus) {
+            res.status(403).json({
+                message: "Error While Updating"
+            });
+            return;
+        }
+        res.status(200).json({
+            message: "Updated Succsesfully"
+        });
+    }
+    catch (e) {
+        console.log(e);
+        res.status(500).json({
+            message: "Inernal Server Error"
+        });
+    }
+});
+UserRouter.get("/allrequest", middleware_1.UserAuth, async (req, res) => {
+    try {
+        const UserId = req.userId;
+        const AllRequest = await import_1.prismaclient.connectionRequest.findMany({ where: { receiverId: UserId }, include: { sender: { include: { tags: true } } } });
+        if (!AllRequest) {
+            res.status(403).json({
+                message: "Error While Getting Data"
+            });
+            return;
+        }
+        res.status(200).json({
+            request: AllRequest
+        });
+    }
+    catch (e) {
+        console.log(e);
+        res.status(500).json({
+            message: "Internal Server"
         });
     }
 });
