@@ -25,3 +25,8 @@ export const IsLoading = atom({
     key : "loading",
     default : true
 })
+
+export const UserRequest = atom({
+    key : "userequest",
+    default : []
+})

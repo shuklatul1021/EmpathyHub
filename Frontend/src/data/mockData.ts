@@ -1,4 +1,4 @@
-import { User, MoodEntry, MessageThread, Resource, ForumPost, Badge } from '../types';
+import { User, MoodEntry, MessageThread, Resource, ForumPost, ForumComment, Badge } from '../types';
 
 // Mock Users
 export const mockUsers: User[] = [
@@ -78,6 +78,30 @@ export const mockUsers: User[] = [
         description: 'Completed profile and community guidelines',
         icon: 'user-check',
         dateEarned: new Date('2023-09-05'),
+      },
+    ],
+  },
+  {
+    id: '4',
+    name: 'Sam Chen',
+    email: 'sam@example.com',
+    avatar: 'https://images.pexels.com/photos/1043471/pexels-photo-1043471.jpeg?auto=compress&cs=tinysrgb&w=150',
+    bio: 'Mental health advocate and mindfulness practitioner.',
+    tags: ['mindfulness', 'advocacy', 'wellness'],
+    privacySettings: {
+      showEmail: false,
+      showActivity: true,
+      allowDirectMessages: true,
+      shareJournals: true,
+    },
+    supportScore: 95,
+    badges: [
+      {
+        id: 'b5',
+        name: 'Community Leader',
+        description: 'Led 5+ support groups',
+        icon: 'users',
+        dateEarned: new Date('2023-08-12'),
       },
     ],
   },
@@ -197,7 +221,7 @@ export const mockForumPosts: ForumPost[] = [
     id: 'p1',
     authorId: '2',
     title: 'How do you manage anxiety in social situations?',
-    content: 'I\'ve been struggling with social anxiety lately, especially in group settings. What techniques have worked for you when dealing with social anxiety?',
+    content: 'I\'ve been struggling with social anxiety lately, especially in group settings. What techniques have worked for you when dealing with social anxiety? I find myself avoiding social events and it\'s starting to affect my relationships.',
     tags: ['anxiety', 'social-situations', 'coping'],
     likes: 15,
     commentCount: 8,
@@ -208,11 +232,71 @@ export const mockForumPosts: ForumPost[] = [
     id: 'p2',
     authorId: '3',
     title: 'Burnout recovery strategies that actually worked',
-    content: 'After experiencing severe burnout last year, I\'ve been slowly recovering. I wanted to share some strategies that have genuinely helped me and see what\'s worked for others.',
+    content: 'After experiencing severe burnout last year, I\'ve been slowly recovering. I wanted to share some strategies that have genuinely helped me and see what\'s worked for others. Setting boundaries was huge for me, along with rediscovering hobbies I had abandoned.',
     tags: ['burnout', 'recovery', 'work-stress'],
     likes: 28,
     commentCount: 12,
     createdAt: new Date('2023-09-10T16:45:00'),
     updatedAt: new Date('2023-09-19T13:20:00'),
+  },
+  {
+    id: 'p3',
+    authorId: '4',
+    title: 'The power of mindfulness in daily life',
+    content: 'I\'ve been practicing mindfulness for about 6 months now, and the changes have been remarkable. It\'s not just about meditation - it\'s about being present in everyday moments. Would love to hear about others\' experiences with mindfulness practices.',
+    tags: ['mindfulness', 'meditation', 'daily-practice'],
+    likes: 22,
+    commentCount: 15,
+    createdAt: new Date('2023-09-12T14:20:00'),
+    updatedAt: new Date('2023-09-18T11:30:00'),
+  },
+];
+
+// Mock Forum Comments
+export const mockForumComments: ForumComment[] = [
+  {
+    id: 'c1',
+    postId: 'p1',
+    authorId: '1',
+    content: 'I completely understand this struggle. What helped me was starting small - maybe just staying for 30 minutes at social events and gradually increasing the time. Also, having a trusted friend who knows about your anxiety can be really helpful.',
+    likes: 5,
+    createdAt: new Date('2023-09-15T11:15:00'),
+    updatedAt: new Date('2023-09-15T11:15:00'),
+  },
+  {
+    id: 'c2',
+    postId: 'p1',
+    authorId: '4',
+    content: 'Breathing exercises before and during social situations have been a game-changer for me. The 4-7-8 technique specifically - breathe in for 4, hold for 7, exhale for 8. It helps calm the nervous system.',
+    likes: 8,
+    createdAt: new Date('2023-09-15T12:30:00'),
+    updatedAt: new Date('2023-09-15T12:30:00'),
+  },
+  {
+    id: 'c3',
+    postId: 'p2',
+    authorId: '2',
+    content: 'Thank you for sharing this. I\'m currently dealing with burnout and your point about boundaries really resonates. How did you start implementing boundaries at work without feeling guilty?',
+    likes: 3,
+    createdAt: new Date('2023-09-11T09:20:00'),
+    updatedAt: new Date('2023-09-11T09:20:00'),
+  },
+  {
+    id: 'c4',
+    postId: 'p3',
+    authorId: '1',
+    content: 'Mindfulness has been transformative for my anxiety too. I love how you mentioned it\'s not just about formal meditation - those mindful moments throughout the day are so powerful.',
+    likes: 6,
+    createdAt: new Date('2023-09-12T15:45:00'),
+    updatedAt: new Date('2023-09-12T15:45:00'),
+  },
+  {
+    id: 'c5',
+    postId: 'p3',
+    authorId: '2',
+    content: 'I\'ve been wanting to start a mindfulness practice but don\'t know where to begin. Any recommendations for beginners?',
+    likes: 4,
+    createdAt: new Date('2023-09-13T10:10:00'),
+    updatedAt: new Date('2023-09-13T10:10:00'),
   },
 ];

@@ -38,7 +38,7 @@ const Login: React.FC = () => {
         await new Promise((res , rej)=> {
           setTimeout(()=>{
             res("Solved")
-          },5000)
+          },2000)
         })
         SetisAuth(true);
         setissuccsessAlert(false);
@@ -48,7 +48,7 @@ const Login: React.FC = () => {
         await new Promise((res , rej)=> {
           setTimeout(()=>{
             res("Solved")
-          },5000)
+          },2000)
         })
         setisfailAlert(false);
       }

@@ -12,14 +12,20 @@ import {
 } from 'lucide-react';
 import Badge from '../components/ui/Badge';
 import { useRecoilValue } from 'recoil';
-import { UserDetails } from '../State/ComponetState';
+import { IsLoading, UserDetails } from '../State/ComponetState';
 import { BACKEND_URL } from '../config';
 
 const Settings: React.FC = () => {
   const [tags, setTags] = useState<string[]>([]);
   const [currentTag, setCurrentTag] = useState('');
+  const EmailRef = useRef<HTMLInputElement>(null);
+  const [displayname , SetDisplayname ] = useState("")
+  const BioRef = useRef<HTMLInputElement>(null);
   const UserDetail = useRecoilValue(UserDetails);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isLoading = useRecoilValue(IsLoading)
+  //Spliting The Value
+
   const [preview, setPreview] = useState<string | null>(null);
   const user = mockUsers[0];
   const [settings, setSettings] = useState({
@@ -97,6 +103,35 @@ const Settings: React.FC = () => {
           }
       }
   };
+  const UpdateDetails = async()=>{
+    try{
+      console.log(displayname);
+      const Arr = displayname?.split(" ");
+      const Res = await fetch(`${BACKEND_URL}/api/v1/user/updateuserdetails` , {
+        method : "POST",
+        headers : {
+          token : localStorage.getItem('token') || "",
+          "Content-Type" : "application/json"
+        },
+        body : JSON.stringify({
+          email : EmailRef.current?.value,
+          bio : BioRef.current?.value,
+          firstname : Arr[0],
+          lastname : Arr[1]
+        })
+      })
+      if(Res.ok){
+        alert("Profile Updated")
+      }else{
+        alert("Error While Updating")
+      }
+
+    }catch(e){
+      console.log(e);
+      alert("Internal Error")
+    }
+
+  }
 
 
   const AddTageUser = async()=>{
@@ -116,8 +151,96 @@ const Settings: React.FC = () => {
       alert("Unable To Add The Tags")
     }
   }
+    if (isLoading) {
+    return (
+      <div className="mx-auto max-w-3xl">
+        <div className="mb-6">
+          <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
+          <div className="h-4 w-64 bg-gray-200 rounded animate-pulse"></div>
+        </div>
 
-  console.log(tags[0]);
+        <div className="space-y-6">
+          {/* Profile Settings Skeleton */}
+          <Card className="animate-pulse">
+            <div className="h-6 w-32 bg-gray-200 rounded mb-4"></div>
+            <div className="space-y-4">
+              <div>
+                <div className="h-4 w-24 bg-gray-200 rounded mb-1"></div>
+                <div className="flex items-center">
+                  <div className="h-16 w-16 bg-gray-200 rounded-full"></div>
+                  <div className="h-10 w-24 bg-gray-200 rounded ml-4"></div>
+                </div>
+              </div>
+              <div>
+                <div className="h-4 w-24 bg-gray-200 rounded mb-1"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+              </div>
+              <div>
+                <div className="h-4 w-16 bg-gray-200 rounded mb-1"></div>
+                <div className="h-20 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Notification Settings Skeleton */}
+          <Card className="animate-pulse">
+            <div className="h-6 w-40 bg-gray-200 rounded mb-4"></div>
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <div>
+                    <div className="h-4 w-24 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-3 w-32 bg-gray-200 rounded"></div>
+                  </div>
+                  <div className="h-6 w-11 bg-gray-200 rounded-full"></div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Privacy Settings Skeleton */}
+          <Card className="animate-pulse">
+            <div className="h-6 w-32 bg-gray-200 rounded mb-4"></div>
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <div>
+                    <div className="h-4 w-28 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-3 w-36 bg-gray-200 rounded"></div>
+                  </div>
+                  <div className="h-6 w-11 bg-gray-200 rounded-full"></div>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {/* Account Settings Skeleton */}
+          <Card className="animate-pulse">
+            <div className="h-6 w-32 bg-gray-200 rounded mb-4"></div>
+            <div className="space-y-4">
+              <div>
+                <div className="h-4 w-24 bg-gray-200 rounded mb-1"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+              </div>
+              <div>
+                <div className="h-4 w-20 bg-gray-200 rounded mb-1"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+              </div>
+              <div>
+                <div className="h-4 w-16 bg-gray-200 rounded mb-1"></div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+              </div>
+            </div>
+          </Card>
+
+          {/* Save Button Skeleton */}
+          <div className="flex justify-end">
+            <div className="h-12 w-32 bg-gray-200 rounded"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="mx-auto max-w-3xl">
       <div className="mb-6">
@@ -168,6 +291,7 @@ const Settings: React.FC = () => {
                 type="text"
                 defaultValue={`${UserDetail.firstname} ${UserDetail.latname}`}
                 className="block w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary"
+                onChange={(e)=> SetDisplayname(e.target.value)}
               />
             </div>
             
@@ -179,6 +303,7 @@ const Settings: React.FC = () => {
                 defaultValue={UserDetail.bio}
                 rows={3}
                 className="block w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary"
+                ref={BioRef}
               />
             </div>
             <div className="mb-6">
@@ -305,6 +430,7 @@ const Settings: React.FC = () => {
                 type="email"
                 defaultValue={UserDetail.email}
                 className="block w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-primary focus:ring-primary"
+                ref={EmailRef}
               />
             </div>
             
@@ -346,7 +472,7 @@ const Settings: React.FC = () => {
           <Button
             size="lg"
             leftIcon={<Save className="h-5 w-5" />}
-          >
+            onClick={UpdateDetails}>
             Save Changes
           </Button>
         </div>

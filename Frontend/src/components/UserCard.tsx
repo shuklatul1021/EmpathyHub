@@ -1,27 +1,48 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { User } from '../types';
 import Card from './ui/Card';
 import Avatar from './ui/Avatar';
 import Badge from './ui/Badge';
 import { Award, Users } from 'lucide-react';
-import { UserDetails } from '../State/ComponetState';
-import { useRecoilValue } from 'recoil';
+import { BACKEND_URL } from '../config';
+import { Link } from 'react-router';
 
 interface UserCardProps {
   user: User;
   isMatch?: boolean;
   matchScore?: number;
-  onConnect?: () => void;
 }
 
 const UserCard: React.FC<UserCardProps> = ({ 
   user, 
   isMatch = false,
-  matchScore,
-  onConnect 
+  matchScore 
 }) => {
-  const Userdetails = useRecoilValue(UserDetails)
-  const Usertag = JSON.parse(Userdetails.tags[0].name);
+  const [isSended ,  setisSended ] = useState(false)
+  const onConnect = async()=>{
+    const URL = `${BACKEND_URL}/api/v1/user/sendconnectionrequest/${user.id}`
+    console.log(URL);
+    try{
+      const Res = await fetch( URL, {
+        method : "POST",
+        headers : {
+          token : localStorage.getItem('token') || '',
+          "Content-Type" : "application/json"
+        }
+      })
+      if(Res.ok){
+        alert("Request Send");
+        setisSended(true);
+      }else{
+        alert("Error While Sending");
+        setisSended(false);
+      }
+    }catch(e){
+      console.log(e);
+      alert("Inernale Server")
+    }
+  }
+
   return (
     <Card className={`
       ${isMatch ? 'border-2 border-primary/30' : ''}
@@ -34,7 +55,7 @@ const UserCard: React.FC<UserCardProps> = ({
       )}
       
       <div className="flex items-start gap-4">
-        <Avatar src={user.avatar} alt={user.name} size="lg" status="online" />
+        <Link to={`/you/${user.id}`}><Avatar src={user.avatar} alt={user.name} size="lg" status="online" /></Link>
         
         <div className="flex-1">
           <div className="flex justify-between items-start">
@@ -49,13 +70,23 @@ const UserCard: React.FC<UserCardProps> = ({
           
           <p className="text-gray-600 mt-1 mb-3">{user.bio}</p>
           
-          <div className="flex flex-wrap gap-1.5 mb-4">
-            {Usertag.map((tag) => (
-              <Badge key={tag} variant="gray" size="sm">
-                {tag}
-              </Badge>
-            ))}
-          </div>
+              {user.tags && user.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {user.tags.flatMap((e) => {
+                    try {
+                      // Try parsing as JSON array
+                      return JSON.parse(e.name);
+                    } catch {
+                      // Fallback: treat as comma-separated string
+                      return e.name.split(',').map(str => str.trim());
+                    }
+                  }).map((tag, index) => (
+                    <Badge key={index} variant="primary" size="sm">
+                      {tag}
+                    </Badge>
+                  ))}
+                </div>
+              )}
           
           {user && (
             <div className="mb-4">
@@ -73,14 +104,12 @@ const UserCard: React.FC<UserCardProps> = ({
             </div>
           )}
           
-          {onConnect && (
             <button 
               onClick={onConnect}
               className="mt-2 text-sm font-medium text-primary hover:text-primary-dark hover:underline"
             >
-              Connect with {user.firstname} {user.latname} →
+              { isSended ? <div>Message</div> : `Connect with ${user.firstname} ${user.latname} →` }
             </button>
-          )}
         </div>
       </div>
     </Card>

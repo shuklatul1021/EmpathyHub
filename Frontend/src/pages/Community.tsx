@@ -1,8 +1,11 @@
 import React, { useState } from 'react';
 import ForumPost from '../components/ForumPost';
+import PostModal from '../components/PostModal';
+import PostDetailModal from '../components/PostDetailModal';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import { mockForumPosts, mockUsers } from '../data/mockData';
+import { mockForumPosts, mockUsers, mockForumComments } from '../data/mockData';
+import { ForumPost as ForumPostType, ForumComment } from '../types';
 import { Search, Filter, MessagesSquare, TrendingUp, Clock, Heart, Plus } from 'lucide-react';
 
 type SortOption = 'trending' | 'recent' | 'popular';
@@ -11,14 +14,28 @@ const Community: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState<SortOption>('trending');
+  const [isLoading, setIsLoading] = useState(true);
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedPost, setSelectedPost] = useState<ForumPostType | null>(null);
+  const [posts, setPosts] = useState<ForumPostType[]>(mockForumPosts);
+  const [comments, setComments] = useState<ForumComment[]>(mockForumComments);
   
+  // Simulate loading state
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Collect all unique tags from forum posts
   const allTags = Array.from(
-    new Set(mockForumPosts.flatMap(post => post.tags))
+    new Set(posts.flatMap(post => post.tags))
   );
   
   // Filter posts based on search term and selected tags
-  const filteredPosts = mockForumPosts.filter(post => {
+  const filteredPosts = posts.filter(post => {
     const matchesSearch = 
       searchTerm === '' || 
       post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -59,11 +76,127 @@ const Community: React.FC = () => {
     return mockUsers.find(user => user.id === authorId) || mockUsers[0];
   };
 
+  // Handle creating new post
+  const handleCreatePost = (postData: { title: string; content: string; tags: string[] }) => {
+    const newPost: ForumPostType = {
+      id: `p${Date.now()}`,
+      authorId: mockUsers[0].id, // Current user
+      title: postData.title,
+      content: postData.content,
+      tags: postData.tags,
+      likes: 0,
+      commentCount: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    setPosts(prev => [newPost, ...prev]);
+  };
+
+  // Handle post detail view
+  const handlePostClick = (post: ForumPostType) => {
+    setSelectedPost(post);
+    setIsDetailModalOpen(true);
+  };
+
+  // Handle adding comment
+  const handleAddComment = (content: string, parentId?: string) => {
+    if (!selectedPost) return;
+    
+    const newComment: ForumComment = {
+      id: `c${Date.now()}`,
+      postId: selectedPost.id,
+      authorId: mockUsers[0].id, // Current user
+      content,
+      likes: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    
+    setComments(prev => [...prev, newComment]);
+    
+    // Update comment count on post
+    setPosts(prev => prev.map(post => 
+      post.id === selectedPost.id 
+        ? { ...post, commentCount: post.commentCount + 1 }
+        : post
+    ));
+  };
+
+  // Get comments for selected post
+  const getPostComments = (postId: string) => {
+    return comments.filter(comment => comment.postId === postId);
+  };
+
   const sortOptions: { value: SortOption; label: string; icon: React.ReactNode }[] = [
     { value: 'trending', label: 'Trending', icon: <TrendingUp className="h-4 w-4" /> },
     { value: 'recent', label: 'Recent', icon: <Clock className="h-4 w-4" /> },
     { value: 'popular', label: 'Popular', icon: <Heart className="h-4 w-4" /> },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-6">
+          <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
+          <div className="h-4 w-96 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-4">
+          <div className="md:col-span-1 space-y-6">
+            <Card className="animate-pulse">
+              <div className="h-6 w-24 bg-gray-200 rounded mb-4"></div>
+              <div className="h-10 bg-gray-200 rounded mb-4"></div>
+              <div className="space-y-2 mb-4">
+                {[1, 2, 3].map((i) => (
+                  <div key={i} className="h-8 bg-gray-200 rounded"></div>
+                ))}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="h-6 w-16 bg-gray-200 rounded-full"></div>
+                ))}
+              </div>
+            </Card>
+            
+            <Card className="animate-pulse">
+              <div className="h-6 w-32 bg-gray-200 rounded mb-3"></div>
+              <div className="space-y-2 mb-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className="h-4 bg-gray-200 rounded"></div>
+                ))}
+              </div>
+              <div className="h-10 bg-gray-200 rounded"></div>
+            </Card>
+          </div>
+          
+          <div className="md:col-span-3 space-y-6">
+            {[1, 2, 3].map((i) => (
+              <Card key={i} className="animate-pulse">
+                <div className="flex items-start space-x-4">
+                  <div className="h-12 w-12 bg-gray-200 rounded-full"></div>
+                  <div className="flex-1">
+                    <div className="h-6 w-3/4 bg-gray-200 rounded mb-2"></div>
+                    <div className="h-4 w-1/2 bg-gray-200 rounded mb-3"></div>
+                    <div className="space-y-2 mb-4">
+                      <div className="h-4 bg-gray-200 rounded"></div>
+                      <div className="h-4 w-5/6 bg-gray-200 rounded"></div>
+                    </div>
+                    <div className="flex gap-2 mb-4">
+                      {[1, 2, 3].map((j) => (
+                        <div key={j} className="h-6 w-16 bg-gray-200 rounded-full"></div>
+                      ))}
+                    </div>
+                    <div className="h-8 bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-7xl">
@@ -158,6 +291,7 @@ const Community: React.FC = () => {
             <Button 
               leftIcon={<Plus className="h-4 w-4" />}
               fullWidth
+              onClick={() => setIsPostModalOpen(true)}
             >
               Create New Post
             </Button>
@@ -171,8 +305,12 @@ const Community: React.FC = () => {
                 <ForumPost 
                   post={post}
                   author={getAuthorForPost(post.authorId)}
-                  onLike={() => {}}
-                  onComment={() => {}}
+                  onLike={() => {
+                    setPosts(prev => prev.map(p => 
+                      p.id === post.id ? { ...p, likes: p.likes + 1 } : p
+                    ));
+                  }}
+                  onComment={() => handlePostClick(post)}
                 />
               </div>
             ))
@@ -183,6 +321,39 @@ const Community: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Post Creation Modal */}
+      <PostModal
+        isOpen={isPostModalOpen}
+        onClose={() => setIsPostModalOpen(false)}
+        onSubmit={handleCreatePost}
+      />
+
+      {/* Post Detail Modal */}
+      {selectedPost && (
+        <PostDetailModal
+          isOpen={isDetailModalOpen}
+          onClose={() => {
+            setIsDetailModalOpen(false);
+            setSelectedPost(null);
+          }}
+          post={selectedPost}
+          author={getAuthorForPost(selectedPost.authorId)}
+          comments={getPostComments(selectedPost.id)}
+          commentAuthors={mockUsers}
+          onLike={() => {
+            setPosts(prev => prev.map(p => 
+              p.id === selectedPost.id ? { ...p, likes: p.likes + 1 } : p
+            ));
+          }}
+          onComment={handleAddComment}
+          onLikeComment={(commentId) => {
+            setComments(prev => prev.map(c => 
+              c.id === commentId ? { ...c, likes: c.likes + 1 } : c
+            ));
+          }}
+        />
+      )}
     </div>
   );
 };

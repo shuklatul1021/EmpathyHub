@@ -9,9 +9,12 @@ import {
   Calendar,
   Settings, 
   HelpCircle, 
-  UserCircle
+  UserCircle,
+  UserPlus
 } from 'lucide-react';
 import { useNavigate } from 'react-router';
+import { useRecoilValue } from 'recoil';
+import { UserDetails } from '../State/ComponetState';
 
 interface NavItem {
   label: string;
@@ -32,18 +35,20 @@ const Sidebar: React.FC<SidebarProps> = ({
   onClose,
   currentPath,
 }) => {
+  const User = useRecoilValue(UserDetails)
   const navItems: NavItem[] = [
     { label: 'Dashboard', icon: <Home />, path: '/dashboard' },
     { label: 'Find Support', icon: <Users />, path: '/find-support' },
     { label: 'Messages', icon: <MessageCircle />, path: '/messages' },
     { label: 'Community', icon: <Heart />, path: '/community' },
     { label: 'Users', icon: <UserCircle />, path: '/users' },
+    { label: 'Connection Requests', icon: <UserPlus />, path: '/connection-requests' },
     { label: 'Mood Tracker', icon: <BarChart />, path: '/mood-tracker' },
     { label: 'Resources', icon: <BookOpen />, path: '/resources' },
     { label: 'Journal', icon: <Calendar />, path: '/journal' },
     { label: 'Settings', icon: <Settings />, path: '/settings' },
     { label: 'Help & Support', icon: <HelpCircle />, path: '/help' },
-    { label: 'You', icon: <UserCircle />, path: '/you' },
+    { label: 'You', icon: <UserCircle />, path: `/you/${User.id}` },
   ];
   const Navigate = useNavigate();
 

@@ -35,6 +35,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       })
       const json = await Resposne.json();
       if(Resposne.ok){
+        // await new Promise ((res, rej)=>{
+        //   setTimeout(()=>{
+        //     res("Resolved")
+        //   },5000)
+        // })
         SetData(json.User);
         setisLaoding(false);
       }
@@ -72,7 +77,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         currentUser={currentUser} 
         onNavToggle={() => setIsSidebarOpen(!isSidebarOpen)} 
         firstname={Data.firstname}
-        latname={Data.latname}
+        lastname={Data.latname}
       />
       
       <div className="flex flex-1 overflow-hidden">

@@ -15,6 +15,8 @@ import Help from './pages/Help';
 import Journal from './pages/Journal';
 import Settings from './pages/Settings';
 import UserDetail from './pages/UserDetails';
+import ConnectionRequests from './pages/ConnectionRequests';
+import MoodTrackerPage from './pages/MoodTracker';
 
 interface RouteProps {
   children: React.ReactNode;
@@ -61,10 +63,11 @@ const AppRoutes: React.FC = () => {
         <Route path="/resources" element={<ProtectedLayout><Resources /></ProtectedLayout>} />
         <Route path="/users" element={<ProtectedLayout><Users /></ProtectedLayout>} />
         <Route path="/help" element={<ProtectedLayout><Help/></ProtectedLayout>} />
-        <Route path="/you" element={<ProtectedLayout><UserDetail/></ProtectedLayout>} />
+        <Route path="/you/*" element={<ProtectedLayout><UserDetail/></ProtectedLayout>} />
         <Route path="/journal" element={<ProtectedLayout><Journal></Journal></ProtectedLayout>} />
         <Route path="/settings" element={<ProtectedLayout><Settings></Settings></ProtectedLayout>} />
-        <Route path="/mood-tracker" element={<ProtectedLayout><Settings></Settings></ProtectedLayout>} />
+        <Route path="/mood-tracker" element={<ProtectedLayout><MoodTrackerPage></MoodTrackerPage></ProtectedLayout>} />
+        <Route path="/connection-requests" element={<ProtectedLayout><ConnectionRequests></ConnectionRequests></ProtectedLayout>} />
 
         {/* Catch all route */}
         <Route path="*" element={<Navigate to="/login" replace />} />

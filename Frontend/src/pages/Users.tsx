@@ -10,6 +10,7 @@ const Users: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const allUser = useRecoilValue(AllUser);
   const SetallUser = useSetRecoilState(AllUser);
+  const [newisLoading , setnewisLoading ] = useState(true);
   
   const getAllUser = async()=>{
     const Res = await fetch(`${BACKEND_URL}/api/v1/user/alluser`, {
@@ -21,6 +22,7 @@ const Users: React.FC = () => {
     })
     const json = await Res.json();
     if(Res.ok){
+      setnewisLoading(false);
       SetallUser(json.users)
     }else(
       alert("Error While Fething")
@@ -30,6 +32,43 @@ const Users: React.FC = () => {
   useEffect(()=>{
     getAllUser();
   },[])
+
+  if (newisLoading) {
+    return (
+      <div className="mx-auto max-w-7xl">
+        <div className="mb-6">
+          <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-2"></div>
+          <div className="h-4 w-96 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        <div className="mb-6">
+          <Card className="animate-pulse">
+            <div className="h-10 bg-gray-200 rounded"></div>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+          {[1, 2, 3].map((i) => (
+            <Card key={i} className="animate-pulse">
+              <div className="flex items-start gap-4">
+                <div className="h-12 w-12 bg-gray-200 rounded-full"></div>
+                <div className="flex-1">
+                  <div className="h-6 w-3/4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-16 bg-gray-200 rounded mb-3"></div>
+                  <div className="flex gap-2 mb-4">
+                    {[1, 2, 3].map((j) => (
+                      <div key={j} className="h-6 w-16 bg-gray-200 rounded-full"></div>
+                    ))}
+                  </div>
+                  <div className="h-8 bg-gray-200 rounded"></div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="mx-auto max-w-7xl">
       <div className="mb-6">
@@ -62,7 +101,6 @@ const Users: React.FC = () => {
             <div key={index} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
               <UserCard 
                 user={user}
-                onConnect={() => {}}
               />
             </div>
           ))

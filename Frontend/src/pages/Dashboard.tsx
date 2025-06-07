@@ -1,7 +1,6 @@
 import React from 'react';
 import Card from '../components/ui/Card';
 import MoodTracker from '../components/MoodTracker';
-import UserCard from '../components/UserCard';
 import ResourceCard from '../components/ResourceCard';
 import ForumPost from '../components/ForumPost';
 import { 
@@ -153,12 +152,12 @@ const Dashboard: React.FC = () => {
                 <UserPlus className="mr-2 h-5 w-5 text-primary" />
                 Recommended Connection
               </h2>
-              <UserCard 
+              {/* <UserCard 
                 user={otherUsers[0]} 
                 isMatch={true} 
                 matchScore={92} 
                 onConnect={() => {}} 
-              />
+              /> */}
             </div>
 
             {/* Featured Resources */}
