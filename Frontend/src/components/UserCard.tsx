@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { User } from '../types';
 import Card from './ui/Card';
 import Avatar from './ui/Avatar';
@@ -18,7 +18,7 @@ const UserCard: React.FC<UserCardProps> = ({
   isMatch = false,
   matchScore 
 }) => {
-  const [isSended ,  setisSended ] = useState(false)
+  const [isSended ,  setisSended ] = useState("")
   const onConnect = async()=>{
     const URL = `${BACKEND_URL}/api/v1/user/sendconnectionrequest/${user.id}`
     console.log(URL);
@@ -32,16 +32,42 @@ const UserCard: React.FC<UserCardProps> = ({
       })
       if(Res.ok){
         alert("Request Send");
-        setisSended(true);
       }else{
         alert("Error While Sending");
-        setisSended(false);
       }
     }catch(e){
       console.log(e);
-      alert("Inernale Server")
+      alert("Internal Server")
     }
   }
+  const getStatus = async()=>{
+    try{
+      const Res = await fetch(`${BACKEND_URL}/api/v1/user/isconnected/${user.id}` , {
+        method : "GET",
+        headers : {
+          token : localStorage.getItem('token') || '',
+          "Content-Type" : "application/json"
+        }
+      });
+      const json = await Res.json();
+      if(Res.ok){
+        if(json.message === "PENDING"){
+          setisSended("Pending")
+        }else if(json.message === "ACCEPTED"){
+          setisSended("Message")
+        }else if(json.message === "ReqenstNotSend"){
+          setisSended(`Connect with ${user.firstname} ${user.latname} →`)
+        }
+      }else{
+        console.log("error While getting Status")
+      }
+    }catch(e){
+      console.log(e);
+    }
+  }
+  useEffect(()=>{
+    getStatus();
+  },[])
 
   return (
     <Card className={`
@@ -55,7 +81,7 @@ const UserCard: React.FC<UserCardProps> = ({
       )}
       
       <div className="flex items-start gap-4">
-        <Link to={`/you/${user.id}`}><Avatar src={user.avatar} alt={user.name} size="lg" status="online" /></Link>
+        <Link to={`/user/${user.id}`}><Avatar src={user.avatar} alt={user.name} size="lg" status="online" /></Link>
         
         <div className="flex-1">
           <div className="flex justify-between items-start">
@@ -108,7 +134,7 @@ const UserCard: React.FC<UserCardProps> = ({
               onClick={onConnect}
               className="mt-2 text-sm font-medium text-primary hover:text-primary-dark hover:underline"
             >
-              { isSended ? <div>Message</div> : `Connect with ${user.firstname} ${user.latname} →` }
+              {isSended}
             </button>
         </div>
       </div>

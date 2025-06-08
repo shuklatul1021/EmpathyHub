@@ -80,28 +80,29 @@ const Settings: React.FC = () => {
   fileInputRef.current?.click(); 
   };
 
-  const handleFileChange = async(e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (file) {
-          const imageUrl = URL.createObjectURL(file);
-          console.log(imageUrl)
-          setPreview(imageUrl);
-          const Res = await fetch(`${BACKEND_URL}/api/v1/main/upload`, {
-              method : "POST",
-              headers : {
-                  token : localStorage.getItem('token') || '',
-                  "Content-Type" : "application/json"
-              },
-              body : JSON.stringify({
-                  ImageUrl : imageUrl
-              })
-          })
-          if(Res.ok){
-              alert("Profile Picture Update");
-          }else{
-              alert("Error While Updating")
-          }
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    console.log(file);
+    if (file) {
+      const formData = new FormData();
+      formData.append('image', file);
+
+      const response = await fetch(`${BACKEND_URL}/api/v1/media/upload`, {
+        method: 'POST',
+        headers: {
+          token: localStorage.getItem('token') || '',
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert('Image uploaded!');
+        console.log(data.imageUrl); 
+      } else {
+        alert('Upload failed');
       }
+    }
   };
   const UpdateDetails = async()=>{
     try{
@@ -273,6 +274,7 @@ const Settings: React.FC = () => {
                   Change Photo
                 </Button>
                 <input
+                    name="image"
                     type="file"
                     accept="image/*"
                     ref={fileInputRef}

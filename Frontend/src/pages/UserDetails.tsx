@@ -1,19 +1,40 @@
-import React from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useLocation, useParams } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Avatar from '../components/ui/Avatar';
 import { mockUsers, mockMoodEntries } from '../data/mockData';
 import { Award, Calendar, MessageCircle, Heart, TrendingUp } from 'lucide-react';
-import { useRecoilValue } from 'recoil';
-import { IsLoading, UserDetails } from '../State/ComponetState';
+import { BACKEND_URL } from '../config';
 
 const UserDetail: React.FC = () => {
   const { id } = useParams();
+  const location = useLocation();
   const user = mockUsers.find(u => u.id === id) || mockUsers[0];
   const userMoodEntries = mockMoodEntries.filter(entry => entry.userId === user.id);
-  const Userdetails = useRecoilValue(UserDetails)
-  const isLoading = useRecoilValue(IsLoading);
+  const [userdetails , setUserdetails ] = useState({});
+  const [isLoading ,setisLoading ]= useState(true);
+
+  const json = location.pathname.split("/");
+
+  const getUserDetails = async()=>{
+    const Res = await fetch(`${BACKEND_URL}/api/v1/user/getuserdetails/${json[2]}` , {
+      method : "GET",
+      headers : {
+        token : localStorage.getItem('token') || '',
+        "Content-Type" : "application/json"
+      }
+    })
+    if(Res.ok){
+      const json = await Res.json();
+      setUserdetails(json.user);
+      setisLoading(false);
+    }
+  }
+
+  useState(()=>{
+    getUserDetails();
+  },[])
 
   if (isLoading) {
     return (
@@ -119,18 +140,18 @@ const UserDetail: React.FC = () => {
           <Card className="animate-fade-in">
             <div className="text-center">
               <Avatar 
-                src={Userdetails.avatar} 
-                alt={Userdetails.username}
+                src={userdetails.avatar} 
+                alt={userdetails.username}
                 size="xl" 
                 status="online"
                 className="mx-auto mb-4"
               />
-              <h1 className="text-2xl font-bold mb-2">{Userdetails.firstname} {Userdetails.latname} </h1>
-              <p className="text-gray-600 mb-4">{Userdetails.bio}</p>
+              <h1 className="text-2xl font-bold mb-2">{userdetails.firstname} {userdetails.latname} </h1>
+              <p className="text-gray-600 mb-4">{userdetails.bio}</p>
               
-              {Userdetails.tags && Userdetails.tags.length > 0 && (
+              {userdetails.tags && userdetails.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1.5 mb-4 ml-16">
-                  {Userdetails.tags.flatMap((e) => {
+                  {userdetails.tags.flatMap((e) => {
                     try {
                       // Try parsing as JSON array
                       return JSON.parse(e.name);

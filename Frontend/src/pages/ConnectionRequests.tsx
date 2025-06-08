@@ -3,7 +3,6 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Avatar from '../components/ui/Avatar';
 import Badge from '../components/ui/Badge';
-import { mockUsers } from '../data/mockData';
 import { 
   UserPlus, 
   Check, 
@@ -26,38 +25,7 @@ interface ConnectionRequest {
   matchScore?: number;
 }
 
-const mockConnectionRequests: ConnectionRequest[] = [
-  {
-    id: '1',
-    fromUserId: '2',
-    toUserId: '1',
-    message: 'Hi! I noticed we have similar experiences with anxiety and meditation. Would love to connect and share our journeys.',
-    status: 'pending',
-    createdAt: new Date('2024-02-20T10:30:00'),
-    matchScore: 92,
-  },
-  {
-    id: '2',
-    fromUserId: '3',
-    toUserId: '1',
-    message: 'I saw your post about work stress and burnout. I\'ve been through something similar and would like to offer support.',
-    status: 'pending',
-    createdAt: new Date('2024-02-19T15:45:00'),
-    matchScore: 78,
-  },
-  {
-    id: '3',
-    fromUserId: '2',
-    toUserId: '1',
-    message: 'Your mindfulness journey resonates with me. Let\'s support each other!',
-    status: 'accepted',
-    createdAt: new Date('2024-02-18T09:15:00'),
-    matchScore: 85,
-  },
-];
-
 const ConnectionRequests: React.FC = () => {
-  const [requests, setRequests] = useState<ConnectionRequest[]>(mockConnectionRequests);
   const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'rejected'>('all');
   const [isLoading, setIsLoading] = useState(true);
 
@@ -72,24 +40,42 @@ const ConnectionRequests: React.FC = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  const handleAccept = (requestId: string) => {
-    setRequests(prev => 
-      prev.map(req => 
-        req.id === requestId 
-          ? { ...req, status: 'accepted' as const }
-          : req
-      )
-    );
+  const handleAccept = async(requestId: string) => {
+    console.log(requestId);
+    const Res = await fetch(`${BACKEND_URL}/api/v1/user/connectionreq/${requestId}/status` , {
+      method : "POST",
+      headers : {
+        token : localStorage.getItem('token') || '',
+        "Content-Type" : "application/json"
+      },
+      body : JSON.stringify({
+        status : "ACCEPTED"
+      })
+    })
+    if(Res.ok){
+      alert("Accepted")
+    }else{
+      alert("error")
+    }
   };
 
-  const handleReject = (requestId: string) => {
-    setRequests(prev => 
-      prev.map(req => 
-        req.id === requestId 
-          ? { ...req, status: 'rejected' as const }
-          : req
-      )
-    );
+  const handleReject = async(requestId: string) => {
+      const Res = await fetch(`${BACKEND_URL}/api/v1/user/connectionreq/${requestId}/status` , {
+      method : "POST",
+      headers : {
+        token : localStorage.getItem('token') || '',
+        "Content-Type" : "application/json"
+      },
+      body : JSON.stringify({
+        Status : "REJECTED"
+      })
+    })
+    if(Res.ok){
+      alert("Accepted")
+    }else{
+      alert("error")
+    }
+
   };
 
     const filteredRequests = GetAllRequest.filter(req => 
@@ -207,7 +193,7 @@ const ConnectionRequests: React.FC = () => {
       {/* Filter Tabs */}
       <div className="flex space-x-1 mb-6">
         {[
-          { key: 'all', label: 'All', count: requests.length },
+          { key: 'all', label: 'All', count: GetAllRequest.length },
           { key: 'pending', label: 'Pending', count: GetAllRequest.filter(r => r.status === 'PENDING').length },
           { key: 'accepted', label: 'Accepted', count: GetAllRequest.filter(r => r.status === 'ACCEPTED').length },
           { key: 'rejected', label: 'Rejected', count: GetAllRequest.filter(r => r.status === 'REJECTED').length },

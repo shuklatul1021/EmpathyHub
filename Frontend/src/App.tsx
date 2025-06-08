@@ -63,7 +63,7 @@ const AppRoutes: React.FC = () => {
         <Route path="/resources" element={<ProtectedLayout><Resources /></ProtectedLayout>} />
         <Route path="/users" element={<ProtectedLayout><Users /></ProtectedLayout>} />
         <Route path="/help" element={<ProtectedLayout><Help/></ProtectedLayout>} />
-        <Route path="/you/*" element={<ProtectedLayout><UserDetail/></ProtectedLayout>} />
+        <Route path="/user/*" element={<ProtectedLayout><UserDetail/></ProtectedLayout>} />
         <Route path="/journal" element={<ProtectedLayout><Journal></Journal></ProtectedLayout>} />
         <Route path="/settings" element={<ProtectedLayout><Settings></Settings></ProtectedLayout>} />
         <Route path="/mood-tracker" element={<ProtectedLayout><MoodTrackerPage></MoodTrackerPage></ProtectedLayout>} />
