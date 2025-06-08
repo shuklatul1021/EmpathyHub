@@ -2,6 +2,7 @@ import Router from "express"
 import { UserAuth } from "../middleware/middleware";
 import { prismaclient } from "../config/import";
 import { upload } from "../uploads/uplode";
+import { v2 as cloudinary } from "cloudinary"
 const MainRouter = Router();
 
 
@@ -162,30 +163,10 @@ MainRouter.post("/addposttag/:resourceId  " , UserAuth , async(req, res)=>{
 })
 
 MainRouter.post('/upload', UserAuth , async (req, res) => {
-  try {
-    const  { ImageUrl }  = req.body;
-    const id = req.userId;
-    const InsertImage = await prismaclient.user.update({
-        data : {
-            avatar : ImageUrl
-        },
-        where : {
-            id : id
-        }
-    })
-    if(!InsertImage){
-        res.status(403).json({
-            message : "Error While Adding Image"
-        })
-    }
-    res.status(200).json({
-        message : "Image Added"
+    cloudinary.config({
+        cloud_name : "EmpathyHub"
     })
 
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
-  }
 });
 
 

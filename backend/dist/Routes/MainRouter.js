@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const middleware_1 = require("../middleware/middleware");
 const import_1 = require("../config/import");
+const cloudinary_1 = require("cloudinary");
 const MainRouter = (0, express_1.default)();
 MainRouter.post("/postmoodentry", middleware_1.UserAuth, async (req, res) => {
     const UserId = req.userId;
@@ -159,29 +160,8 @@ MainRouter.post("/addposttag/:resourceId  ", middleware_1.UserAuth, async (req, 
     }
 });
 MainRouter.post('/upload', middleware_1.UserAuth, async (req, res) => {
-    try {
-        const { ImageUrl } = req.body;
-        const id = req.userId;
-        const InsertImage = await import_1.prismaclient.user.update({
-            data: {
-                avatar: ImageUrl
-            },
-            where: {
-                id: id
-            }
-        });
-        if (!InsertImage) {
-            res.status(403).json({
-                message: "Error While Adding Image"
-            });
-        }
-        res.status(200).json({
-            message: "Image Added"
-        });
-    }
-    catch (err) {
-        console.error(err);
-        res.status(500).json({ message: 'Server error' });
-    }
+    cloudinary_1.v2.config({
+        cloud_name: "EmpathyHub"
+    });
 });
 exports.default = MainRouter;

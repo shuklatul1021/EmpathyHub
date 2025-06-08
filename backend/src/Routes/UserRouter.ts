@@ -189,6 +189,7 @@ UserRouter.post("/login" , async(req, res)=>{
     }
 })
 
+
 UserRouter.get("/userdetails",  UserAuth ,  async(req,res)=>{
     const userId = req.userId;
     try{
@@ -209,6 +210,7 @@ UserRouter.get("/userdetails",  UserAuth ,  async(req,res)=>{
         })
     }
 })
+
 
 UserRouter.get("/alluser" ,  UserAuth , async(req, res)=>{
     try{
@@ -317,31 +319,58 @@ UserRouter.post("/sendconnectionrequest/:receiverId", UserAuth , async(req , res
     }
 })
 
-UserRouter.post("/connectionreq/:id/status" , UserAuth , async(req, res)=>{
-    try{
-        const id  = req.params.id;
-        const Status = req.body;
-        const UpdatingStatus = await prismaclient.connectionRequest.update({
-            where : { id : id},
-            data : { status : Status}
-        })
-        if(!UpdatingStatus){
-            res.status(403).json({
-                message : "Error While Updating"
-            })
-            return;
-        }
-        res.status(200).json({
-            message : "Updated Succsesfully"
-        })
-    }catch(e){
-        console.log(e);
-        res.status(500).json({
-            message : "Inernal Server Error"
-        })
+
+UserRouter.post("/connectionreq/:id/status", UserAuth, async (req, res) => {
+  try {
+    const id = req.params.id;
+    const { status } = req.body;
+
+    if (!["ACCEPTED", "REJECTED"].includes(status)) {
+      return res.status(400).json({ message: "Invalid status value" });
     }
 
-})
+    const request = await prismaclient.connectionRequest.findUnique({
+      where: { id },
+    });
+
+    if (!request) {
+      return res.status(404).json({ message: "Connection request not found" });
+    }
+
+    // Step 1: Update existing request
+    const updatedStatus = await prismaclient.connectionRequest.update({
+      where: { id },
+      data: { status },
+    });
+
+    // Step 2: If accepted, insert reverse entry
+    if (status === "ACCEPTED") {
+      // Check if reverse entry already exists to prevent duplicates
+      const reverseExists = await prismaclient.connectionRequest.findFirst({
+        where: {
+          senderId: request.receiverId,
+          receiverId: request.senderId,
+        },
+      });
+
+      if (!reverseExists) {
+        await prismaclient.connectionRequest.create({
+          data: {
+            senderId: request.receiverId,
+            receiverId: request.senderId,
+            status: "ACCEPTED",
+          },
+        });
+      }
+    }
+
+    res.status(200).json({ message: "Updated successfully" });
+
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
 UserRouter.get("/allrequest" , UserAuth , async(req, res)=>{
     try{
@@ -368,7 +397,7 @@ UserRouter.get("/allrequest" , UserAuth , async(req, res)=>{
 UserRouter.get("/getuserdetails/:id", UserAuth , async(req, res)=>{
     try{
         const id = req.params.id;
-        const UserDetails = await prismaclient.user.findFirst({ where : { id : id}});
+        const UserDetails = await prismaclient.user.findFirst({ where : { id : id}, include : { tags : true}});
         if(!UserDetails){
             res.status(403).json({
                 message : "Error While Getting Details"
@@ -386,6 +415,45 @@ UserRouter.get("/getuserdetails/:id", UserAuth , async(req, res)=>{
     }
 })
 
+
+UserRouter.get("/isconnected/:receiverId", UserAuth, async (req, res) => {
+  try {
+    const UserId = req.userId;
+    const receiverId = req.params.receiverId;
+
+    const isAccepted = await prismaclient.connectionRequest.findFirst({
+      where: {
+        OR: [
+          { senderId: UserId, receiverId: receiverId, status: "ACCEPTED" },
+          { senderId: receiverId, receiverId: UserId, status: "ACCEPTED" },
+        ]
+      }
+    });
+
+    const isPending = await prismaclient.connectionRequest.findFirst({
+      where: {
+        OR: [
+          { senderId: UserId, receiverId: receiverId, status: "PENDING" },
+          { senderId: receiverId, receiverId: UserId, status: "PENDING" },
+        ]
+      }
+    });
+
+    if (isPending) {
+      return res.status(200).json({ message: "PENDING" });
+    }
+
+    if (isAccepted) {
+      return res.status(200).json({ message: "ACCEPTED" });
+    }
+
+    res.status(200).json({ message: "RequestNotSent" });
+
+  } catch (e) {
+    console.log(e);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
 
 
 export default UserRouter;

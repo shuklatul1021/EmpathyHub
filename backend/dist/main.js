@@ -10,6 +10,7 @@ const express_session_1 = __importDefault(require("express-session"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const UserRouter_1 = __importDefault(require("./Routes/UserRouter"));
 const MainRouter_1 = __importDefault(require("./Routes/MainRouter"));
+const Media_1 = __importDefault(require("./Routes/Media"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 dotenv_1.default.config();
@@ -46,6 +47,7 @@ passport_1.default.deserializeUser((user, done) => {
 });
 app.use("/api/v1/user", UserRouter_1.default);
 app.use("/api/v1/main", MainRouter_1.default);
+app.use("/api/v1/media", Media_1.default);
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
