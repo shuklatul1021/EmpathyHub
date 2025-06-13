@@ -16,6 +16,7 @@ import { IsLoading, UserDetails } from '../State/ComponetState';
 import { BACKEND_URL } from '../config';
 
 const Settings: React.FC = () => {
+  //States For The State 
   const [tags, setTags] = useState<string[]>([]);
   const [currentTag, setCurrentTag] = useState('');
   const EmailRef = useRef<HTMLInputElement>(null);
@@ -24,9 +25,11 @@ const Settings: React.FC = () => {
   const UserDetail = useRecoilValue(UserDetails);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const isLoading = useRecoilValue(IsLoading)
-  //Spliting The Value
-
+  const [profileuplodes , isProfileUplodes] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
+  const [notificationalert , setnotificationalert ] = useState(false);
+
+
   const user = mockUsers[0];
   const [settings, setSettings] = useState({
     notifications: {
@@ -81,6 +84,7 @@ const Settings: React.FC = () => {
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    isProfileUplodes(true);
     const file = e.target.files?.[0];
     console.log(file);
     if (file) {
@@ -97,9 +101,14 @@ const Settings: React.FC = () => {
 
       const data = await response.json();
       if (response.ok) {
-        alert('Image uploaded!');
+        isProfileUplodes(false);
+        setnotificationalert(true);
+        setnotificationalert(false);
         console.log(data.imageUrl); 
       } else {
+        isProfileUplodes(false);
+        setnotificationalert(true);
+        setnotificationalert(false);
         alert('Upload failed');
       }
     }
@@ -245,11 +254,13 @@ const Settings: React.FC = () => {
   return (
     <div className="mx-auto max-w-3xl">
       <div className="mb-6">
+
         <h1 className="text-3xl font-bold text-gray-900">Settings</h1>
         <p className="mt-2 text-gray-600">
           Manage your account settings and preferences
         </p>
       </div>
+      {notificationalert ? <div>Succsess</div> : <div>Error</div>}
 
       <div className="space-y-6">
         {/* Profile Settings */}
@@ -271,7 +282,7 @@ const Settings: React.FC = () => {
                   className="h-16 w-16 rounded-full"
                 />             
                 <Button variant="outline" className="ml-4" onClick={handleButtonClick}>
-                  Change Photo
+                  {profileuplodes ? "Uploding Profile ... " : "Change Photo"}
                 </Button>
                 <input
                     name="image"

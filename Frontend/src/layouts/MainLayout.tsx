@@ -78,6 +78,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         onNavToggle={() => setIsSidebarOpen(!isSidebarOpen)} 
         firstname={Data.firstname}
         lastname={Data.latname}
+        avatar={Data.avatar}
       />
       
       <div className="flex flex-1 overflow-hidden">

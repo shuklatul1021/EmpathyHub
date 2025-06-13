@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ForumPost as ForumPostType, User, ForumComment } from '../types';
 import Avatar from './ui/Avatar';
 import Badge from './ui/Badge';
@@ -12,24 +12,49 @@ import {
   ThumbsUp,
   Reply
 } from 'lucide-react';
+import { BACKEND_URL } from '../config';
+
+interface Tag{
+  name : string,
+}
+interface Post{
+  id : string,
+  title : string,
+  content : string,
+  createdAt : Date,
+}
+interface Auther{
+  firstname : string,
+  latname : string,
+  avatar : string,
+}
+interface Comment{
+  content : string,
+  createdAt : string,
+  authorId : string
+}
 
 interface PostDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
-  post: ForumPostType;
-  author: User;
-  comments: ForumComment[];
+  post: Post;
+  author: Auther;
+  tag : Tag[]
+  comments: Comment[];
   commentAuthors: User[];
   onLike: () => void;
   onComment: (content: string, parentId?: string) => void;
   onLikeComment: (commentId: string) => void;
 }
 
+
+
 const PostDetailModal: React.FC<PostDetailModalProps> = ({
   isOpen,
   onClose,
   post,
   author,
+  tag,
   comments,
   commentAuthors,
   onLike,
@@ -37,6 +62,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
   onLikeComment,
 }) => {
   const [newComment, setNewComment] = useState('');
+  const [allcomments , setallcomments ] = useState([]);
   const [replyTo, setReplyTo] = useState<string | null>(null);
   const [liked, setLiked] = useState(false);
   const [likedComments, setLikedComments] = useState<Set<string>>(new Set());
@@ -57,11 +83,46 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
     onLikeComment(commentId);
   };
 
-  const handleSubmitComment = () => {
+   const getPostComment = async()=>{
+    const Res = await fetch(`${BACKEND_URL}/api/v1/community/getpostcomment/${post.id}` , {
+      method : "GET",
+      headers : {
+        token : localStorage.getItem('token') || ''
+      }
+    })
+    const JSON = await Res.json();
+    if(Res.ok){
+      setallcomments(JSON.comments)
+    }else{
+      alert("Error")
+    }
+  }
+
+  useEffect(()=>{
+    getPostComment();
+  },[])
+
+  const handleSubmitComment = async() => {
     if (newComment.trim()) {
       onComment(newComment.trim(), replyTo || undefined);
       setNewComment('');
       setReplyTo(null);
+      
+    }
+    const Res = await fetch(`${BACKEND_URL}/api/v1/community/communitypostcomment/${post.id}`, {
+      method : "POST",
+      headers : {
+        token : localStorage.getItem('token') || '',
+        "Content-Type" : "application/json"
+      },
+      body : JSON.stringify({
+        content : newComment
+      })
+    })
+    if(Res.ok){
+      alert("Commented Succsessfully")
+    }else{
+      alert("Error While Posting Comment")
     }
   };
 
@@ -102,12 +163,12 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             {/* Post Content */}
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-start space-x-4">
-                <Avatar src={author.avatar} alt={author.name} status="online" />
+                <Avatar src={author.avatar} alt={author.firstname} status="online" />
                 <div className="flex-1">
                   <h3 className="text-xl font-semibold mb-2">{post.title}</h3>
                   
                   <div className="flex items-center text-sm text-gray-500 mb-4">
-                    <span className="font-medium">{author.name}</span>
+                    <span className="font-medium">{author.firstname} {author.latname}</span>
                     <span className="mx-2">•</span>
                     <span className="flex items-center">
                       <Clock className="h-3.5 w-3.5 mr-1" />
@@ -118,13 +179,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   <p className="text-gray-700 mb-4 leading-relaxed">{post.content}</p>
                   
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {post.tags.map((tag) => (
-                      <Badge key={tag} variant="gray" size="sm">
-                        {tag}
-                      </Badge>
-                    ))}
+                    {tag.map((tag, index) => {
+                      const parsedTags = JSON.parse(tag.name);
+                      return parsedTags.map((t, i) => (
+                        <Badge key={`${index}-${i}`} variant="gray" size="sm">
+                          {t}
+                        </Badge>
+                      ));
+                    })}
                   </div>
-                  
+      
                   <div className="flex items-center gap-4">
                     <button
                       onClick={handleLike}
@@ -133,7 +197,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                       }`}
                     >
                       <Heart className={`h-4 w-4 mr-1 ${liked ? 'fill-accent' : ''}`} />
-                      <span>{liked ? post.likes + 1 : post.likes}</span>
+                      {/* <span>{liked ? post.likes + 1 : post.likes}</span> */}
                     </button>
                     
                     <span className="flex items-center text-sm text-gray-500">
@@ -148,7 +212,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
             {/* Comments Section */}
             <div className="p-6">
               <h4 className="text-lg font-semibold mb-4">
-                Comments ({comments.length})
+                Comments {comments.length}
               </h4>
 
               {/* Comment Input */}
@@ -165,7 +229,7 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
                   </div>
                 )}
                 <div className="flex gap-3">
-                  <Avatar src={author.avatar} alt={author.name} size="sm" />
+                  <Avatar src={author.avatar} alt={author.firstname} size="sm" />
                   <div className="flex-1">
                     <textarea
                       value={newComment}
@@ -190,17 +254,16 @@ const PostDetailModal: React.FC<PostDetailModalProps> = ({
 
               {/* Comments List */}
               <div className="space-y-4">
-                {comments.length > 0 ? (
-                  comments.map((comment) => {
-                    const commentAuthor = getCommentAuthor(comment.authorId);
+                {allcomments ? (
+                  allcomments.map((comment) => {
                     const isLiked = likedComments.has(comment.id);
                     
                     return (
                       <div key={comment.id} className="flex gap-3 p-4 bg-gray-50 rounded-lg">
-                        <Avatar src={commentAuthor.avatar} alt={commentAuthor.name} size="sm" />
+                        <Avatar src={comment.author.avatar} alt={comment.author.firstname} size="sm" />
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium text-sm">{commentAuthor.name}</span>
+                            <span className="font-medium text-sm">{comment.author.firstname} {comment.author.latname}</span>
                             <span className="text-xs text-gray-500">
                               {formatDate(comment.createdAt)}
                             </span>

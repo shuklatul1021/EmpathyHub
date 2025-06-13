@@ -55,10 +55,11 @@ interface HeaderProps {
   onNavToggle: () => void;
   onLogout: () => void;
   firstname : string,
-  lastname : string
+  lastname : string,
+  avatar: string
 }
 
-const Header: React.FC<HeaderProps> = ({ currentUser, onNavToggle, onLogout , firstname , lastname}) => {
+const Header: React.FC<HeaderProps> = ({ currentUser, onNavToggle, onLogout , firstname , lastname , avatar}) => {
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>(mockNotifications);
@@ -247,8 +248,8 @@ const Header: React.FC<HeaderProps> = ({ currentUser, onNavToggle, onLogout , fi
           {currentUser && (
             <div className="ml-4 flex items-center">
               <Avatar
-                src={currentUser.avatar}
-                alt={currentUser.name}
+                src={avatar}
+                alt={firstname}
                 size="sm"
                 status="online"
               />

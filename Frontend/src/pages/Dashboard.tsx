@@ -136,13 +136,13 @@ const Dashboard: React.FC = () => {
             </div>
 
             {/* Popular Discussion */}
-            <div className="animate-fade-in">
+            {/* <div className="animate-fade-in">
               <h2 className="mb-4 text-xl font-semibold text-gray-900">Popular Discussion</h2>
               <ForumPost 
                 post={topForumPost} 
                 author={postAuthor} 
               />
-            </div>
+            </div> */}
           </div>
 
           <div className="space-y-6">

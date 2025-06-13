@@ -6,7 +6,8 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { mockForumPosts, mockUsers, mockForumComments } from '../data/mockData';
 import { ForumPost as ForumPostType, ForumComment } from '../types';
-import { Search, Filter, MessagesSquare, TrendingUp, Clock, Heart, Plus } from 'lucide-react';
+import { Search, Filter, MessagesSquare, TrendingUp, Clock, Heart, Plus, Annoyed } from 'lucide-react';
+import { BACKEND_URL } from '../config';
 
 type SortOption = 'trending' | 'recent' | 'popular';
 
@@ -19,15 +20,9 @@ const Community: React.FC = () => {
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedPost, setSelectedPost] = useState<ForumPostType | null>(null);
   const [posts, setPosts] = useState<ForumPostType[]>(mockForumPosts);
+  const [communityposts, setcommunityposts] = useState([]);
   const [comments, setComments] = useState<ForumComment[]>(mockForumComments);
   
-  // Simulate loading state
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Collect all unique tags from forum posts
   const allTags = Array.from(
@@ -44,7 +39,6 @@ const Community: React.FC = () => {
     const matchesTags = 
       selectedTags.length === 0 || 
       selectedTags.some(tag => post.tags.includes(tag));
-    
     return matchesSearch && matchesTags;
   });
   
@@ -83,7 +77,6 @@ const Community: React.FC = () => {
       authorId: mockUsers[0].id, // Current user
       title: postData.title,
       content: postData.content,
-      tags: postData.tags,
       likes: 0,
       commentCount: 0,
       createdAt: new Date(),
@@ -94,8 +87,8 @@ const Community: React.FC = () => {
   };
 
   // Handle post detail view
-  const handlePostClick = (post: ForumPostType) => {
-    setSelectedPost(post);
+  const handlePostClick = (communitypost: ForumPostType) => {
+    setSelectedPost(communitypost);
     setIsDetailModalOpen(true);
   };
 
@@ -134,6 +127,30 @@ const Community: React.FC = () => {
     { value: 'popular', label: 'Popular', icon: <Heart className="h-4 w-4" /> },
   ];
 
+
+  const GetCommunityDetails = async()=>{
+    const Res = await fetch(`${BACKEND_URL}/api/v1/community/getcommunitypost`, {
+      method : "GET",
+      headers : {
+        token : localStorage.getItem('token') || '',
+        "Content-Type" : "application/json"
+      }
+    })
+    const JSON = await Res.json()
+    if(Res.ok){
+      setcommunityposts(JSON.CoommutnityPost);
+      setIsLoading(false);
+    }else{
+      alert("Error While Fething");
+      setIsLoading(false);
+    }
+  }
+
+  useState(()=>{
+    GetCommunityDetails();
+  },[])
+  
+  console.log(communityposts)
   if (isLoading) {
     return (
       <div className="mx-auto max-w-7xl">
@@ -299,12 +316,13 @@ const Community: React.FC = () => {
         </div>
         
         <div className="md:col-span-3 space-y-6">
-          {sortedPosts.length > 0 ? (
-            sortedPosts.map((post, index) => (
-              <div key={post.id} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
+          {communityposts.length > 0 ? (
+            communityposts.map((post, index) => (
+              <div key={index} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                 <ForumPost 
                   post={post}
-                  author={getAuthorForPost(post.authorId)}
+                  author={post.author}
+                  tags={post.tags}
                   onLike={() => {
                     setPosts(prev => prev.map(p => 
                       p.id === post.id ? { ...p, likes: p.likes + 1 } : p
@@ -338,8 +356,9 @@ const Community: React.FC = () => {
             setSelectedPost(null);
           }}
           post={selectedPost}
-          author={getAuthorForPost(selectedPost.authorId)}
-          comments={getPostComments(selectedPost.id)}
+          author={selectedPost.author}
+          tag={selectedPost.tags}
+          comments={selectedPost.comments}
           commentAuthors={mockUsers}
           onLike={() => {
             setPosts(prev => prev.map(p => 

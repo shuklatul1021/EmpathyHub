@@ -5,6 +5,7 @@ interface BadgeProps {
   variant?: 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'error' | 'gray';
   size?: 'sm' | 'md';
   className?: string;
+  onClick?: () => void;
 }
 
 const Badge: React.FC<BadgeProps> = ({
@@ -12,6 +13,7 @@ const Badge: React.FC<BadgeProps> = ({
   variant = 'primary',
   size = 'md',
   className = '',
+  onClick,
 }) => {
   const variantStyles = {
     primary: 'bg-primary/10 text-primary',
@@ -28,15 +30,28 @@ const Badge: React.FC<BadgeProps> = ({
     md: 'text-sm px-2.5 py-1',
   };
 
+  const baseClasses = `
+    inline-flex items-center rounded-full font-medium
+    ${variantStyles[variant]}
+    ${sizeStyles[size]}
+    ${onClick ? 'cursor-pointer hover:opacity-80 transition-opacity' : ''}
+    ${className}
+  `;
+
+  if (onClick) {
+    return (
+      <button
+        onClick={onClick}
+        className={baseClasses}
+        type="button"
+      >
+        {children}
+      </button>
+    );
+  }
+
   return (
-    <span
-      className={`
-        inline-flex items-center rounded-full font-medium
-        ${variantStyles[variant]}
-        ${sizeStyles[size]}
-        ${className}
-      `}
-    >
+    <span className={baseClasses}>
       {children}
     </span>
   );

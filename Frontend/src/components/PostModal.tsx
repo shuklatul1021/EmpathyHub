@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Button from './ui/Button';
 import Badge from './ui/Badge';
 import { X, Plus, Hash } from 'lucide-react';
+import { BACKEND_URL } from '../config';
 
 interface PostModalProps {
   isOpen: boolean;
@@ -20,15 +21,25 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, onSubmit }) => {
     'self-care', 'mindfulness', 'support', 'recovery', 'wellness'
   ];
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async(e: React.FormEvent) => {
     e.preventDefault();
-    if (title.trim() && content.trim()) {
-      onSubmit({ title: title.trim(), content: content.trim(), tags });
-      setTitle('');
-      setContent('');
-      setTags([]);
-      setNewTag('');
-      onClose();
+    console.log(tags);
+    const bodyRes = await fetch(`${BACKEND_URL}/api/v1/community/addcommunitypost` , {
+      method : "POST",
+      headers : {
+        token  : localStorage.getItem('token') || '',
+        "Content-Type" : "application/json"
+      },
+      body : JSON.stringify({
+        title : title,
+        content : content,
+        tags : JSON.stringify(tags.map(e => e))
+      })
+    })
+    if(bodyRes.ok){
+      alert("Post POsted");
+    }else{
+      alert("Error While Posting")
     }
   };
 
@@ -109,11 +120,11 @@ const PostModal: React.FC<PostModalProps> = ({ isOpen, onClose, onSubmit }) => {
                     <Badge
                       key={tag}
                       variant="primary"
-                      className="flex items-center gap-1 cursor-pointer"
+                      className="flex items-center gap-1 cursor-pointer hover:bg-primary/80 transition-colors"
                       onClick={() => removeTag(tag)}
                     >
                       {tag}
-                      <X className="h-3 w-3" />
+                      <X className="h-3 w-3 hover:bg-primary-dark rounded-full" />
                     </Badge>
                   ))}
                 </div>
