@@ -6,6 +6,7 @@ import dotenv from 'dotenv';
 import UserRouter from './Routes/UserRouter';
 import MainRouter from './Routes/MainRouter';
 import MediaRouter from './Routes/Media';
+import CommunityRouter from './Routes/Community';
 const app = express();
 app.use(express.json());
 dotenv.config();
@@ -53,6 +54,7 @@ passport.deserializeUser((user: any, done) => {
 app.use("/api/v1/user", UserRouter);
 app.use("/api/v1/main", MainRouter);
 app.use("/api/v1/media", MediaRouter);
+app.use("/api/v1/community", CommunityRouter);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });
