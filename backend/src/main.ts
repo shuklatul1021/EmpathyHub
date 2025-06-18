@@ -7,6 +7,7 @@ import UserRouter from './Routes/UserRouter';
 import MainRouter from './Routes/MainRouter';
 import MediaRouter from './Routes/Media';
 import CommunityRouter from './Routes/Community';
+import MesagesRouter from './Routes/Mesages';
 const app = express();
 app.use(express.json());
 dotenv.config();
@@ -55,6 +56,7 @@ app.use("/api/v1/user", UserRouter);
 app.use("/api/v1/main", MainRouter);
 app.use("/api/v1/media", MediaRouter);
 app.use("/api/v1/community", CommunityRouter);
+app.use("/api/v1/messages", MesagesRouter);
 
 app.get('/health', (req, res) => {
   res.json({ status: 'ok' });

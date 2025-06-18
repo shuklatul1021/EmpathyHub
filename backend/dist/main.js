@@ -12,6 +12,7 @@ const UserRouter_1 = __importDefault(require("./Routes/UserRouter"));
 const MainRouter_1 = __importDefault(require("./Routes/MainRouter"));
 const Media_1 = __importDefault(require("./Routes/Media"));
 const Community_1 = __importDefault(require("./Routes/Community"));
+const Mesages_1 = __importDefault(require("./Routes/Mesages"));
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 dotenv_1.default.config();
@@ -50,6 +51,7 @@ app.use("/api/v1/user", UserRouter_1.default);
 app.use("/api/v1/main", MainRouter_1.default);
 app.use("/api/v1/media", Media_1.default);
 app.use("/api/v1/community", Community_1.default);
+app.use("/api/v1/messages", Mesages_1.default);
 app.get('/health', (req, res) => {
     res.json({ status: 'ok' });
 });
