@@ -124,12 +124,12 @@ const FindSupport: React.FC = () => {
             {supportUsers.length > 0 ? (
               supportUsers.map((user, index) => (
                 <div key={user.id} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
-                  <UserCard 
+                  {/* <UserCard 
                     user={user} 
                     isMatch={index === 0} 
                     matchScore={index === 0 ? 92 : undefined}
                     onConnect={() => {}} 
-                  />
+                  /> */}
                 </div>
               ))
             ) : (

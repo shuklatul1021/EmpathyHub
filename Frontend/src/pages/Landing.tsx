@@ -1,6 +1,7 @@
 import React from 'react';
 import { Heart, ArrowRight, Sparkles, Shield, Users, MessageCircle } from 'lucide-react';
 import Button from '../components/ui/Button';
+import Logo from "../public/black_circle_360x360.png"
 
 const Landing = () => {
   return (
@@ -32,10 +33,31 @@ const Landing = () => {
               >
                 Get Started
               </Button>
+              <div>
+                <a title="Powered By Bolt" href="https://bolt.new" target="_blank">
+                  <img className='h-[50px]' src={Logo} ></img>
+                </a>
+              </div>
             </div>
           </div>
         </div>
       </nav>
+
+            <div className="fixed bottom-6 right-6 z-50">
+        <a
+          href="https://bolt.new"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="group flex items-center gap-2 bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-2 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105"
+        >
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 bg-white rounded-full flex items-center justify-center">
+              <span className="text-orange-500 font-bold text-sm">⚡</span>
+            </div>
+            <span className="font-semibold text-sm">Built with Bolt.new</span>
+          </div>
+        </a>
+      </div>
 
       {/* Hero Section */}
       <div className="relative pt-32 pb-24 sm:pt-40 sm:pb-32">

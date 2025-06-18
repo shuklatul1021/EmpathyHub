@@ -55,7 +55,7 @@ const UserCard: React.FC<UserCardProps> = ({
           setisSended("Pending")
         }else if(json.message === "ACCEPTED"){
           setisSended("Message")
-        }else if(json.message === "ReqenstNotSend"){
+        }else if(json.message === "RequestNotSent"){
           setisSended(`Connect with ${user.firstname} ${user.latname} →`)
         }
       }else{
