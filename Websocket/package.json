@@ -1,19 +1,30 @@
 {
-  "name": "websocket",
+  "name": "websocket-chat-server",
   "version": "1.0.0",
-  "main": "index.js",
+  "description": "WebSocket chat server for real-time messaging",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "tsc -b",
-    "dev" : "npm run build && node ./dist/index.js"
+    "dev": "tsc -b && node ./dist/index.js",
+    "build": "tsc -b"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
-    "@types/websocket": "^1.0.10",
-    "@types/ws": "^8.18.1",
-    "typescript": "^5.8.3",
-    "ws": "^8.18.2"
+    "@prisma/client": "file:../backend/node_modules/@prisma/client",
+    "@types/jsonwebtoken": "^9.0.9",
+    "axios": "^1.9.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2",
+    "ws": "^8.16.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^4.17.21",
+    "@types/node": "^20.11.19",
+    "@types/ws": "^8.5.10",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.3.3"
   }
 }
