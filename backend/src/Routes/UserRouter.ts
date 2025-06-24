@@ -177,6 +177,9 @@ UserRouter.post("/login" , async(req, res)=>{
             })
             return;
         }
+        if(token){
+            await prismaclient.user.update({ data : { isactive : true } , where : { id : VerifyEmail.id}})
+        }
         res.status(200).json({
             token : token
         })

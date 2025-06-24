@@ -16,6 +16,7 @@ model User {
   latname         String
   avatar          String?
   bio             String?
+  isactive        Boolean?       @default(false)
   supportScore    Int?              @default(0)
   createdAt       DateTime         @default(now())
   updatedAt       DateTime?         @updatedAt
