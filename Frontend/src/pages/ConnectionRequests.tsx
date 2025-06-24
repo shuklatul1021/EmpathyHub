@@ -20,16 +20,33 @@ interface ConnectionRequest {
   fromUserId: string;
   toUserId: string;
   message: string;
-  status: 'pending' | 'accepted' | 'rejected';
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
   createdAt: Date;
   matchScore?: number;
 }
 
+interface TagsDataType{
+  id : string;
+  name : string
+}
+
+interface RequestUserDetails{
+  id : string;
+  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  sender : {
+    firstname : string;
+    latname : string;
+    avatar : string;
+    tags : TagsDataType[]
+  };
+  createdAt : Date
+}
+
 const ConnectionRequests: React.FC = () => {
-  const [filter, setFilter] = useState<'all' | 'pending' | 'accepted' | 'rejected'>('all');
+  const [filter, setFilter] = useState<'all' | 'PENDING' | 'ACCEPTED' | 'REJECTED'>('all');
   const [isLoading, setIsLoading] = useState(true);
 
-  const GetAllRequest = useRecoilValue(UserRequest);
+  const GetAllRequest : RequestUserDetails[] = useRecoilValue(UserRequest);
   const SetAllRequestUser = useSetRecoilState(UserRequest)
   console.log(GetAllRequest);
 
@@ -95,18 +112,18 @@ const ConnectionRequests: React.FC = () => {
 
   const getStatusColor = (status: ConnectionRequest['status']) => {
     switch (status) {
-      case 'pending': return 'warning';
-      case 'accepted': return 'success';
-      case 'rejected': return 'error';
+      case 'PENDING': return 'warning';
+      case 'ACCEPTED': return 'success';
+      case 'REJECTED': return 'error';
       default: return 'gray';
     }
   };
 
   const getStatusIcon = (status: ConnectionRequest['status']) => {
     switch (status) {
-      case 'pending': return <Clock className="h-4 w-4" />;
-      case 'accepted': return <Check className="h-4 w-4" />;
-      case 'rejected': return <X className="h-4 w-4" />;
+      case 'PENDING': return <Clock className="h-4 w-4" />;
+      case 'ACCEPTED': return <Check className="h-4 w-4" />;
+      case 'REJECTED': return <X className="h-4 w-4" />;
       default: return null;
     }
   };
@@ -194,9 +211,9 @@ const ConnectionRequests: React.FC = () => {
       <div className="flex space-x-1 mb-6">
         {[
           { key: 'all', label: 'All', count: GetAllRequest.length },
-          { key: 'pending', label: 'Pending', count: GetAllRequest.filter(r => r.status === 'PENDING').length },
-          { key: 'accepted', label: 'Accepted', count: GetAllRequest.filter(r => r.status === 'ACCEPTED').length },
-          { key: 'rejected', label: 'Rejected', count: GetAllRequest.filter(r => r.status === 'REJECTED').length },
+          { key: 'PENDING', label: 'Pending', count: GetAllRequest.filter(r => r.status === 'PENDING').length },
+          { key: 'ACCEPTED', label: 'Accepted', count: GetAllRequest.filter(r => r.status === 'ACCEPTED').length },
+          { key: 'REJECTED', label: 'Rejected', count: GetAllRequest.filter(r => r.status === 'REJECTED').length },
         ].map(({ key, label, count }) => (
           <button
             key={key}
@@ -221,8 +238,8 @@ const ConnectionRequests: React.FC = () => {
               <Card key={request.id} className="animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
                 <div className="flex items-start gap-4">
                   <Avatar 
-                    src={request.avatar} 
-                    alt={request.firstname}
+                    src={request.sender.avatar} 
+                    alt={request.sender.firstname}
                     size="lg" 
                     status="online" 
                   />
@@ -320,7 +337,7 @@ const ConnectionRequests: React.FC = () => {
             <UserPlus className="h-12 w-12 text-gray-400 mx-auto mb-4" />
             <h3 className="text-lg font-medium text-gray-900 mb-2">No connection requests</h3>
             <p className="text-gray-500">
-              {filter === 'pending' 
+              {filter === 'PENDING' 
                 ? "You don't have any pending connection requests."
                 : `No ${filter} connection requests found.`}
             </p>

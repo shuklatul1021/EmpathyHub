@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import MessageThread from '../components/MessageThread';
 import Card from '../components/ui/Card';
 import Avatar from '../components/ui/Avatar';
-import { Search, Plus } from 'lucide-react';
+import { Search, Plus, Flashlight } from 'lucide-react';
 import { BACKEND_URL } from '../config';
 
 const Messages: React.FC = () => {
@@ -10,12 +10,14 @@ const Messages: React.FC = () => {
   const [messages, setMessages] = useState([]);
   const [activeUser, setActiveUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [loading , setisloading ] = useState(true);
 
   const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}'); // assume user info is stored locally
 
   // Fetch all connected users
   const getAllConnectedUsers = async () => {
     try {
+      setisloading(true);
       const res = await fetch(`${BACKEND_URL}/api/v1/messages/getchatuser`, {
         method: 'GET',
         headers: {
@@ -24,11 +26,13 @@ const Messages: React.FC = () => {
       });
       const data = await res.json();
       if (res.ok) {
+        setisloading(false);
         setAllUsers(data.users);
       } else {
         alert('Error fetching users');
       }
     } catch (err) {
+      console.log(err);
       alert('Network error');
     }
   };
@@ -50,6 +54,7 @@ const Messages: React.FC = () => {
         alert('Error fetching messages');
       }
     } catch (err) {
+      console.log(err);
       alert('Error loading messages');
     }
   };
@@ -65,6 +70,95 @@ const Messages: React.FC = () => {
   const filteredUsers = allUsers.filter(user =>
     user.firstname.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  console.log(messages);
+  if (loading) {
+    return (
+      <div className="mx-auto max-w-7xl h-[calc(100vh-10rem)]">
+        <div className="mb-6">
+          <div className="h-8 w-48 bg-gray-200 rounded animate-pulse mb-2"></div>
+          <div className="h-4 w-96 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        <div className="grid h-full grid-cols-1 gap-6 md:grid-cols-3">
+          {/* Conversations List Skeleton */}
+          <div className="md:col-span-1 h-full">
+            <Card className="flex h-full flex-col animate-pulse" padding="none">
+              {/* Header Skeleton */}
+              <div className="border-b border-gray-200 p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <div className="h-6 w-32 bg-gray-200 rounded"></div>
+                  <div className="h-5 w-5 bg-gray-200 rounded"></div>
+                </div>
+                <div className="h-10 bg-gray-200 rounded"></div>
+              </div>
+              
+              {/* Conversation Items Skeleton */}
+              <div className="flex-1 overflow-y-auto">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="border-b border-gray-100 p-4">
+                    <div className="flex items-start">
+                      <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+                      <div className="ml-3 flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <div className="h-4 w-24 bg-gray-200 rounded"></div>
+                          <div className="h-3 w-12 bg-gray-200 rounded"></div>
+                        </div>
+                        <div className="h-3 w-32 bg-gray-200 rounded"></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
+          
+          {/* Message Thread Skeleton */}
+          <div className="md:col-span-2 h-full">
+            <Card className="flex h-full flex-col animate-pulse" padding="none">
+              {/* Thread Header Skeleton */}
+              <div className="border-b border-gray-200 p-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 bg-gray-200 rounded-full"></div>
+                  <div>
+                    <div className="h-4 w-24 bg-gray-200 rounded mb-1"></div>
+                    <div className="h-3 w-16 bg-gray-200 rounded"></div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Messages Skeleton */}
+              <div className="flex-1 p-4 space-y-4">
+                {[1, 2, 3, 4, 5].map((i) => (
+                  <div key={i} className={`flex ${i % 2 === 0 ? 'justify-end' : 'justify-start'}`}>
+                    <div className={`max-w-[75%] ${i % 2 === 0 ? 'flex-row-reverse' : ''} flex`}>
+                      {i % 2 !== 0 && <div className="h-8 w-8 bg-gray-200 rounded-full mr-2 mt-1"></div>}
+                      <div>
+                        <div className={`
+                          ${i % 2 === 0 ? 'bg-gray-300' : 'bg-gray-200'} 
+                          rounded-2xl px-4 py-3 mb-1
+                          ${i === 1 ? 'h-12 w-48' : i === 2 ? 'h-16 w-56' : i === 3 ? 'h-10 w-40' : i === 4 ? 'h-14 w-52' : 'h-12 w-44'}
+                        `}></div>
+                        <div className={`h-3 w-16 bg-gray-200 rounded ${i % 2 === 0 ? 'ml-auto' : ''}`}></div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Message Input Skeleton */}
+              <div className="border-t border-gray-200 p-4">
+                <div className="flex items-center gap-2">
+                  <div className="flex-1 h-10 bg-gray-200 rounded-full"></div>
+                  <div className="h-10 w-20 bg-gray-200 rounded-full"></div>
+                </div>
+              </div>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-7xl h-[calc(100vh-10rem)]">
